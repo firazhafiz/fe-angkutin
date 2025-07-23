@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Header() {
   return (
     <header className="fixed top-8 left-0 w-full z-50 flex justify-center pointer-events-none">
-      <nav className="px-8 gap-24 md:px-16 lg:px-16 flex items-center justify-between bg-tosca rounded-full py-3 shadow-lg pointer-events-auto">
+      <nav className="px-8 gap-24 md:px-16 lg:px-16 flex items-center justify-between backdrop-blur-xs bg-tosca/70 rounded-full py-3 shadow-lg pointer-events-auto">
         <div className=" w-[100px] flex items-center">
           <Link href="/" className="flex items-center gap-2 select-none">
             <Image

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
-import { MdOutlineEmail, MdPhone } from "react-icons/md";
+import { MdOutlineMail, MdPhone } from "react-icons/md";
 
 export default function Footer() {
   return (
@@ -108,7 +108,7 @@ export default function Footer() {
             </ul>
           </div>
           {/* Get in Touch */}
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 w-full">
             <h3 className="text-base md:text-lg font-bold mb-3">
               Get in Touch
             </h3>
@@ -136,7 +136,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <MdOutlineEmail size={18} />
+                <MdOutlineMail size={18} />
                 <a
                   href="mailto:Kb3tD@example.com"
                   className="hover:underline text-white/80"
