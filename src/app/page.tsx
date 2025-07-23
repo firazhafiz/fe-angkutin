@@ -2,6 +2,7 @@ import Hero from "../../components/organisms/Hero";
 import RunningText from "../../components/moleculs/RunningText";
 import Services from "../../components/organisms/Services";
 import Banner from "../../components/organisms/Banner";
+import Benefit from "../../components/organisms/Benefit";
 
 export default function Home() {
   return (
@@ -12,11 +13,14 @@ export default function Home() {
       <section className="relative mb-30">
         <RunningText />
       </section>
-      <section className="max-w-6xl mx-auto mb-10">
+      <section className="max-w-6xl mx-auto mb-20">
         <Services />
       </section>
-      <section className="max-w-6xl mx-auto">
+      <section className="max-w-6xl mx-auto mb-20">
         <Banner />
+      </section>
+      <section className="max-w-8xl mx-auto mb-10">
+        <Benefit />
       </section>
     </main>
   );
