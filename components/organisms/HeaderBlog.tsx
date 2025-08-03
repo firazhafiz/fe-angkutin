@@ -34,8 +34,9 @@ export default function HeaderBlog() {
 
           {/* Description */}
           <p className="text-md font-light max-w-2xl leading-relaxed text-gray-200">
-            Let's work together to stop using single-use plastics. Every small
-            step you take today brings great change for tomorrow's earth.
+            Let&apos;s work together to stop using single-use plastics. Every
+            small step you take today brings great change for tomorrow&apos;s
+            earth.
           </p>
         </div>
       </div>

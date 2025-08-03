@@ -5,8 +5,15 @@ import GoogleAuth from "../atoms/GoogleAuth";
 import Link from "next/link";
 import { useState } from "react";
 
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export default function RegisterContent() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
@@ -48,18 +55,25 @@ export default function RegisterContent() {
       }
 
       window.location.href = "/login"; // atau gunakan router.push jika pakai next/navigation
-    } catch (error: any) {
-      console.error("Registration error:", error.message);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Registration failed";
+      console.error("Registration error:", errorMessage);
     }
   };
 
   return (
     <div className="w-[570px] bg-white rounded-lg shadow-sm p-8">
-      <h1 className="text-2xl font-bold text-gray-900 text-center mb-6">Register</h1>
+      <h1 className="text-2xl font-bold text-gray-900 text-center mb-6">
+        Register
+      </h1>
 
       <RegisterForm formData={formData} onChange={handleChange} />
 
-      <button onClick={handleRegister} className="w-full bg-tosca text-white font-semibold py-3 rounded-md hover:bg-tosca/90 transition-colors mt-4">
+      <button
+        onClick={handleRegister}
+        className="w-full bg-tosca text-white font-semibold py-3 rounded-md hover:bg-tosca/90 transition-colors mt-4"
+      >
         Register
       </button>
 
@@ -73,7 +87,10 @@ export default function RegisterContent() {
 
       <p className="text-center mt-4 text-gray-600">
         Already have an account?{" "}
-        <Link href="/login" className="text-tosca font-semibold hover:underline">
+        <Link
+          href="/login"
+          className="text-tosca font-semibold hover:underline"
+        >
           Sign in
         </Link>
       </p>

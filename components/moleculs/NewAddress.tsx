@@ -2,14 +2,25 @@
 
 import { useState } from "react";
 
+interface UserData {
+  name: string;
+  phone: string;
+}
+
+interface FormData {
+  name: string;
+  phone: string;
+  provinsi: string;
+  city: string;
+  streetAddress: string;
+  detailLainnya: string;
+}
+
 interface NewAddressProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (addressData: any) => void;
-  userData: {
-    name: string;
-    phone: string;
-  };
+  onConfirm: (addressData: FormData) => void;
+  userData: UserData;
 }
 
 export default function NewAddress({
@@ -18,7 +29,7 @@ export default function NewAddress({
   onConfirm,
   userData,
 }: NewAddressProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: userData.name,
     phone: userData.phone,
     provinsi: "",
@@ -27,7 +38,7 @@ export default function NewAddress({
     detailLainnya: "",
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,

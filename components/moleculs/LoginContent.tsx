@@ -5,8 +5,13 @@ import LoginForm from "../atoms/LoginForm";
 import GoogleAuth from "../atoms/GoogleAuth";
 import Link from "next/link";
 
+interface FormData {
+  email: string;
+  password: string;
+}
+
 export default function LoginContent() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
   });
@@ -33,16 +38,24 @@ export default function LoginContent() {
 
       if (!response.ok) throw new Error(data.message || "Login failed");
       window.location.href = "/";
-    } catch (error: any) {
-      console.error("Login error:", error.message);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
+      console.error("Login error:", errorMessage);
     }
   };
 
   return (
     <div className="w-[500px] h-auto bg-white rounded-lg shadow-sm p-8">
-      <h1 className="text-3xl font-bold text-black-100 text-center mb-8 font">Login</h1>
+      <h1 className="text-3xl font-bold text-black-100 text-center mb-8 font">
+        Login
+      </h1>
 
-      <LoginForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} />
+      <LoginForm
+        formData={formData}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
 
       {/* OR Separator */}
       <div className="flex items-center justify-center my-6">
@@ -56,8 +69,11 @@ export default function LoginContent() {
 
       {/* Sign Up Link */}
       <p className="text-center mt-6 text-gray-600">
-        Don't have an account?{" "}
-        <Link href="/register" className="text-tosca font-semibold hover:underline">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/register"
+          className="text-tosca font-semibold hover:underline"
+        >
           Sign up
         </Link>
       </p>

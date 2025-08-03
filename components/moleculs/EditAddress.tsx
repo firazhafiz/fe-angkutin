@@ -2,15 +2,26 @@
 
 import { useState, useEffect } from "react";
 
+interface AddressData {
+  name: string;
+  phone: string;
+  address: string;
+}
+
+interface FormData {
+  name: string;
+  phone: string;
+  provinsi: string;
+  city: string;
+  streetAddress: string;
+  detailLainnya: string;
+}
+
 interface EditAddressProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (addressData: any) => void;
-  addressData: {
-    name: string;
-    phone: string;
-    address: string;
-  };
+  onConfirm: (addressData: FormData) => void;
+  addressData: AddressData;
 }
 
 export default function EditAddress({
@@ -19,7 +30,7 @@ export default function EditAddress({
   onConfirm,
   addressData,
 }: EditAddressProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     phone: "",
     provinsi: "",
@@ -46,7 +57,7 @@ export default function EditAddress({
     }
   }, [addressData]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,

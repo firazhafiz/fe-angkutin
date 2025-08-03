@@ -4,8 +4,14 @@ import { useState } from "react";
 import { pickupAddressData } from "../../data/pickupAddress";
 import Address from "../atoms/Address";
 
+interface AddressData {
+  name: string;
+  phone: string;
+  address: string;
+}
+
 interface AddressListProps {
-  onEdit: (address: any) => void;
+  onEdit: (address: AddressData) => void;
 }
 
 export default function AddressList({ onEdit }: AddressListProps) {
@@ -15,7 +21,7 @@ export default function AddressList({ onEdit }: AddressListProps) {
     setSelectedAddress(index);
   };
 
-  const handleEdit = (address: any) => {
+  const handleEdit = (address: AddressData) => {
     onEdit(address);
   };
 

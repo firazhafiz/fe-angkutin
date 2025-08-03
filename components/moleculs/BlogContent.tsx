@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface BlogItem {
   id: number;
   title: string;
@@ -27,13 +29,21 @@ export default function BlogContent({ blog }: { blog: BlogItem }) {
 
       {/* Thumbnail */}
       <div className="mb-8 flex ">
-        <img src={blog.thumbnail} alt={blog.title} className="w-full max-w-[860px] h-[480px] object-cover rounded-xl" />
+        <Image
+          src={blog.thumbnail}
+          alt={blog.title}
+          className="w-full max-w-[860px] h-[480px] object-cover rounded-xl"
+        />
       </div>
 
       {/* Deskripsi dan Konten */}
       <div className="max-w-5xl">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">{blog.description}</h3>
-        <p className="text-gray-800 leading-relaxed whitespace-pre-line">{blog.content}</p>
+        <h3 className="text-lg font-medium text-gray-700 mb-4">
+          {blog.description}
+        </h3>
+        <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+          {blog.content}
+        </p>
       </div>
     </div>
   );

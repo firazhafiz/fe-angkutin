@@ -5,9 +5,17 @@ import { MdLocationOn } from "react-icons/md";
 import { pickupAddressData } from "../../data/pickupAddress";
 import AddressModal from "../organisms/AddressModal";
 
+interface AddressData {
+  name: string;
+  phone: string;
+  address: string;
+}
+
 export default function OrderAddress() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(pickupAddressData[0]);
+  const [selectedAddress, setSelectedAddress] = useState<AddressData>(
+    pickupAddressData[0]
+  );
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -17,7 +25,7 @@ export default function OrderAddress() {
     setIsModalOpen(false);
   };
 
-  const handleAddressEdit = (address: any) => {
+  const handleAddressEdit = (address: AddressData) => {
     setSelectedAddress(address);
     setIsModalOpen(false);
   };

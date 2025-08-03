@@ -33,7 +33,7 @@ export default function OrderSuccess() {
           Order Success!
         </h1>
         <p className="text-gray-600 text-lg font-light">
-          Your order has been successfully placed. We'll pick up your waste
+          Your order has been successfully placed. We&apos;ll pick up your waste
           soon!
         </p>
       </div>

@@ -35,7 +35,7 @@ export default function HowToOrder() {
             How to Order
           </h2>
           <p className="text-gray-100 font-light text-lg mb-4">
-            Confused by piling waste? Relax, we'll handle the pickup.
+            Confused by piling waste? Relax, we&apos;ll handle the pickup.
           </p>
           <a
             href="#order"

@@ -7,7 +7,7 @@ export default function Benefit() {
         Why Choose Us
       </h2>
       <p className="text-lg md:text-xl font-light text-center text-black-100 mb-12 max-w-2xl">
-        It's not just about throwing away waste, but how we process it.
+        It&apos;s not just about throwing away waste, but how we process it.
       </p>
       <CardBenefitList />
     </section>

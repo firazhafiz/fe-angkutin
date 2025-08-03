@@ -15,23 +15,39 @@ export default function MessagePage() {
           </div>
           <div className="mt-8">
             <div className="flex gap-2">
-              <Image src={profile} alt="profile" className="rounded-full h-[50px] w-[50px]" />
+              <Image
+                src={profile}
+                alt="profile"
+                className="rounded-full h-[50px] w-[50px]"
+              />
 
               <div>
-                <h2 className="text-lg font-semibold text-[#016A70]">Victoria</h2>
+                <h2 className="text-lg font-semibold text-[#016A70]">
+                  Victoria
+                </h2>
                 <p className="text-slate-500 text-sm">Hi! Great question...</p>
               </div>
             </div>
             <div className="flex gap-2 mt-6">
-              <Image src={profile} alt="profile" className="rounded-full h-[50px] w-[50px]" />
+              <Image
+                src={profile}
+                alt="profile"
+                className="rounded-full h-[50px] w-[50px]"
+              />
 
               <div>
-                <h2 className="text-lg font-semibold text-[#016A70]">Alexander</h2>
+                <h2 className="text-lg font-semibold text-[#016A70]">
+                  Alexander
+                </h2>
                 <p className="text-slate-500 text-sm">Hi! Great question...</p>
               </div>
             </div>
             <div className="flex gap-2 mt-6">
-              <Image src={profile} alt="profile" className="rounded-full h-[50px] w-[50px]" />
+              <Image
+                src={profile}
+                alt="profile"
+                className="rounded-full h-[50px] w-[50px]"
+              />
 
               <div>
                 <h2 className="text-lg font-semibold text-[#016A70]">Thomas</h2>
@@ -44,9 +60,15 @@ export default function MessagePage() {
           {/* Header */}
           <div>
             <div className="flex gap-3 pb-2 border-b border-slate-300">
-              <Image src={profile} alt="profile" className="rounded-full h-[50px] w-[50px]" />
+              <Image
+                src={profile}
+                alt="profile"
+                className="rounded-full h-[50px] w-[50px]"
+              />
               <div>
-                <h2 className="text-lg font-semibold text-[#016A70]">Victoria</h2>
+                <h2 className="text-lg font-semibold text-[#016A70]">
+                  Victoria
+                </h2>
                 <p className="text-slate-500 text-sm">Professor</p>
               </div>
             </div>
@@ -55,12 +77,20 @@ export default function MessagePage() {
             <div className="mt-4 flex flex-col gap-4 max-h-[500px] overflow-y-auto pr-2">
               {/* Incoming message */}
               <div className="flex items-start gap-2">
-                <Image src={profile} alt="profile" className="rounded-full h-[40px] w-[40px]" />
+                <Image
+                  src={profile}
+                  alt="profile"
+                  className="rounded-full h-[40px] w-[40px]"
+                />
                 <div>
                   <div className="bg-[#F0F0F0] p-3 rounded-2xl max-w-xs">
-                    <p className="text-sm text-slate-700">Hi! I saw your submission, it's very interesting.</p>
+                    <p className="text-sm text-slate-700">
+                      Hi! I saw your submission, it&apos;s very interesting.
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">Friday at 1.24 PM</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Friday at 1.24 PM
+                  </p>
                 </div>
               </div>
 
@@ -68,20 +98,33 @@ export default function MessagePage() {
               <div className="flex justify-end">
                 <div>
                   <div className="bg-[#016A70] text-white p-3 rounded-2xl max-w-xs">
-                    <p className="text-sm">Thank you! I'm happy to hear that. Do you have any feedback?</p>
+                    <p className="text-sm">
+                      Thank you! I&apos;m happy to hear that. Do you have any
+                      feedback?
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1 text-right">Friday at 1.29 PM</p>
+                  <p className="text-xs text-slate-500 mt-1 text-right">
+                    Friday at 1.29 PM
+                  </p>
                 </div>
               </div>
 
               {/* Incoming message */}
               <div className="flex items-start gap-2">
-                <Image src={profile} alt="profile" className="rounded-full h-[40px] w-[40px]" />
+                <Image
+                  src={profile}
+                  alt="profile"
+                  className="rounded-full h-[40px] w-[40px]"
+                />
                 <div>
                   <div className="bg-[#F0F0F0] p-3 rounded-2xl max-w-xs">
-                    <p className="text-sm text-slate-700">Yes, I would suggest improving your conclusion section.</p>
+                    <p className="text-sm text-slate-700">
+                      Yes, I would suggest improving your conclusion section.
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">Friday at 1.29 PM</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Friday at 1.29 PM
+                  </p>
                 </div>
               </div>
             </div>
@@ -90,8 +133,14 @@ export default function MessagePage() {
           {/* Chat input */}
           <div className="mt-4 pt-3 border-t border-slate-300">
             <div className="flex gap-2">
-              <input type="text" placeholder="Type your message..." className="w-full border text-slate-500 border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-0" />
-              <button className="bg-[#016A70] text-white px-4 py-2 rounded-xl cursor-pointer">Send</button>
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className="w-full border text-slate-500 border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-0"
+              />
+              <button className="bg-[#016A70] text-white px-4 py-2 rounded-xl cursor-pointer">
+                Send
+              </button>
             </div>
           </div>
         </div>

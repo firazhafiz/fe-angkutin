@@ -5,10 +5,25 @@ import AddressList from "../moleculs/AddressList";
 import NewAddress from "../moleculs/NewAddress";
 import EditAddress from "../moleculs/EditAddress";
 
+interface AddressData {
+  name: string;
+  phone: string;
+  address: string;
+}
+
+interface FormData {
+  name: string;
+  phone: string;
+  provinsi: string;
+  city: string;
+  streetAddress: string;
+  detailLainnya: string;
+}
+
 interface AddressModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (address: any) => void;
+  onEdit: (address: AddressData) => void;
 }
 
 export default function AddressModal({
@@ -19,7 +34,9 @@ export default function AddressModal({
   const [currentModal, setCurrentModal] = useState<
     "address-list" | "new-address" | "edit-address"
   >("address-list");
-  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(
+    null
+  );
   const [userData] = useState({
     name: "Firaz Fulvian Hafiz",
     phone: "081234567890",
@@ -29,18 +46,18 @@ export default function AddressModal({
     setCurrentModal("new-address");
   };
 
-  const handleEditAddress = (address: any) => {
+  const handleEditAddress = (address: AddressData) => {
     setSelectedAddress(address);
     setCurrentModal("edit-address");
   };
 
-  const handleNewAddressConfirm = (addressData: any) => {
+  const handleNewAddressConfirm = (addressData: FormData) => {
     // Handle new address confirmation
     console.log("New address data:", addressData);
     setCurrentModal("address-list");
   };
 
-  const handleEditAddressConfirm = (addressData: any) => {
+  const handleEditAddressConfirm = (addressData: FormData) => {
     // Handle edit address confirmation
     console.log("Edit address data:", addressData);
     setCurrentModal("address-list");
@@ -81,7 +98,7 @@ export default function AddressModal({
         isOpen={true}
         onClose={handleBackToAddressList}
         onConfirm={handleEditAddressConfirm}
-        addressData={selectedAddress}
+        addressData={selectedAddress!}
       />
     );
   }
