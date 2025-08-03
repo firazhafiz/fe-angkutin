@@ -37,6 +37,10 @@ export default function LoginContent() {
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.message || "Login failed");
+      console.log(data.data.user);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      localStorage.setItem("token", data.data.tokens.access.token);
       window.location.href = "/";
     } catch (error) {
       const errorMessage =

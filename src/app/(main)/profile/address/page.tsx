@@ -20,12 +20,10 @@ export default function AddressPage() {
 
   const handleSave = (address: Address) => {
     if (editingIndex !== null) {
-      // Edit
       const updated = [...addresses];
       updated[editingIndex] = address;
       setAddresses(updated);
     } else {
-      // Add
       setAddresses([...addresses, address]);
     }
     setEditingIndex(null);
