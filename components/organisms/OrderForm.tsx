@@ -1,5 +1,6 @@
 import OrderAddress from "../moleculs/OrderAddress";
 import BookingInformation from "../moleculs/BookingInformation";
+import Link from "next/link";
 
 export default function OrderForm() {
   return (
@@ -16,9 +17,11 @@ export default function OrderForm() {
       <div className="px-8 pb-8 space-y-6">
         <OrderAddress />
         <BookingInformation />
-        <button className="w-full bg-tosca text-white font-semibold py-3 text-md rounded-md shadow-md hover:bg-tosca/90 hover:shadow-lg transition-all duration-200">
-          Place Order
-        </button>
+        <Link href="/order/id">
+          <button className="w-full bg-tosca text-white font-semibold py-3 text-md rounded-md shadow-md hover:bg-tosca/90 hover:shadow-lg transition-all duration-200">
+            Place Order
+          </button>
+        </Link>
       </div>
 
       {/* Place Order Button */}
