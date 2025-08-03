@@ -1,31 +1,48 @@
+"use client";
+
+import { useState } from "react";
 import LoginForm from "../atoms/LoginForm";
 import GoogleAuth from "../atoms/GoogleAuth";
 import Link from "next/link";
 
 export default function LoginContent() {
-  const handleLogin = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login button clicked");
+    try {
+      const response = await fetch(`http://localhost:4000/v1/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Login failed");
+      window.location.href = "/";
+    } catch (error: any) {
+      console.error("Login error:", error.message);
+    }
   };
 
   return (
     <div className="w-[500px] h-auto bg-white rounded-lg shadow-sm p-8">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-black-100 text-center mb-8 font">
-        Login
-      </h1>
+      <h1 className="text-3xl font-bold text-black-100 text-center mb-8 font">Login</h1>
 
-      {/* Login Form */}
-      <LoginForm />
-
-      {/* Login Button */}
-      <button
-        onClick={handleLogin}
-        className="w-full bg-tosca text-white font-semibold py-3 rounded-md hover:bg-tosca/90 transition-colors mt-6"
-      >
-        Login
-      </button>
+      <LoginForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} />
 
       {/* OR Separator */}
       <div className="flex items-center justify-center my-6">
@@ -40,10 +57,7 @@ export default function LoginContent() {
       {/* Sign Up Link */}
       <p className="text-center mt-6 text-gray-600">
         Don't have an account?{" "}
-        <Link
-          href="/register"
-          className="text-tosca font-semibold hover:underline"
-        >
+        <Link href="/register" className="text-tosca font-semibold hover:underline">
           Sign up
         </Link>
       </p>

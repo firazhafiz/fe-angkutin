@@ -1,55 +1,34 @@
-import { useState } from "react";
-
-export default function RegisterForm() {
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+type Props = {
+  formData: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
   };
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle register logic here
-    console.log("Register form submitted:", formData);
-  };
-
+export default function RegisterForm({ formData, onChange }: Props) {
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-4">
-      {/* Fullname Field */}
+    <form className="w-full space-y-4">
       <div>
-        <label
-          htmlFor="fullname"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="name" className="block text-md font-medium text-gray-700 mb-2">
           Fullname
         </label>
         <input
           type="text"
-          id="fullname"
-          name="fullname"
-          value={formData.fullname}
-          onChange={handleChange}
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={onChange}
           placeholder="Input your fullname"
-          className="w-full px-3 py-2 border text-sm text-black-100 placeholder:text-gray-400 placeholder:text-sm border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
+          className="w-full px-3 py-2 border text-sm placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
           required
         />
       </div>
 
-      {/* Email Field */}
       <div>
-        <label
-          htmlFor="email"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="email" className="block text-md font-medium text-gray-700 mb-2">
           Email
         </label>
         <input
@@ -57,19 +36,15 @@ export default function RegisterForm() {
           id="email"
           name="email"
           value={formData.email}
-          onChange={handleChange}
+          onChange={onChange}
           placeholder="Input your email"
-          className="w-full px-3 py-2 border placeholder:text-gray-400 text-sm text-black-100 placeholder:text-sm border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
+          className="w-full px-3 py-2 border text-sm placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
           required
         />
       </div>
 
-      {/* Password Field */}
       <div>
-        <label
-          htmlFor="password"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="password" className="block text-md font-medium text-gray-700 mb-2">
           Password
         </label>
         <input
@@ -77,19 +52,15 @@ export default function RegisterForm() {
           id="password"
           name="password"
           value={formData.password}
-          onChange={handleChange}
+          onChange={onChange}
           placeholder="Input your password"
-          className="w-full px-3 py-2 border placeholder:text-gray-400 placeholder:text-sm text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
+          className="w-full px-3 py-2 border text-sm placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
           required
         />
       </div>
 
-      {/* Confirm Password Field */}
       <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="confirmPassword" className="block text-md font-medium text-gray-700 mb-2">
           Confirm Password
         </label>
         <input
@@ -97,9 +68,9 @@ export default function RegisterForm() {
           id="confirmPassword"
           name="confirmPassword"
           value={formData.confirmPassword}
-          onChange={handleChange}
-          placeholder="Input your password"
-          className="w-full px-3 py-2 border placeholder:text-gray-400 placeholder:text-sm text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
+          onChange={onChange}
+          placeholder="Repeat your password"
+          className="w-full px-3 py-2 border text-sm placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
           required
         />
       </div>
