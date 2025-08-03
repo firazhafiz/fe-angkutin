@@ -42,7 +42,7 @@ export default function BlogRecomendation({ excludeId }: { excludeId: number }) 
         <span className="text-sm text-gray-900 cursor-pointer hover:text-gray-700">View all</span>
       </div>
 
-      <div className="flex gap-6 flex-wrap">
+      <div className="grid grid-cols-3 gap-4">
         {recommendedBlogs.map((blog) => (
           <CardBlog
             key={blog.id} // untuk React

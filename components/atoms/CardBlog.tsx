@@ -20,7 +20,7 @@ export default function CardBlog({ id, thumbnail, title, description, author, pu
   };
 
   return (
-    <div onClick={handleClick} className="w-[370px] h-full cursor-pointer overflow-hidden">
+    <div onClick={handleClick} className=" h-full cursor-pointer overflow-hidden">
       {/* Image */}
       <div className="w-full h-[250px] relative">
         <Image src={thumbnail} alt={title} fill className="object-cover rounded-lg" />
