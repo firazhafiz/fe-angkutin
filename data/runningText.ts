@@ -1,5 +1,5 @@
 export interface RunningTextItem {
-  icon: string; // path ke asset svg
+  icon: string;
   text: string;
 }
 

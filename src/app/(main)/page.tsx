@@ -1,14 +1,14 @@
-import Hero from "../../components/organisms/Hero";
-import RunningText from "../../components/moleculs/RunningText";
-import Services from "../../components/organisms/Services";
-import Banner from "../../components/organisms/Banner";
-import Benefit from "../../components/organisms/Benefit";
-import HowToOrder from "../../components/organisms/HowToOrder";
-import Gallery from "../../components/organisms/Gallery";
-import TestimoniLeft from "../../components/moleculs/TestimoniLeft";
-import TestimoniRight from "../../components/moleculs/TestimoniRight";
-import TestimoniTitle from "../../components/atoms/TestimoniTitle";
-import Promote from "../../components/organisms/Promote";
+import Hero from "../../../components/organisms/Hero";
+import RunningText from "../../../components/moleculs/RunningText";
+import Services from "../../../components/organisms/Services";
+import Banner from "../../../components/organisms/Banner";
+import Benefit from "../../../components/organisms/Benefit";
+import HowToOrder from "../../../components/organisms/HowToOrder";
+import Gallery from "../../../components/organisms/Gallery";
+import TestimoniLeft from "../../../components/moleculs/TestimoniLeft";
+import TestimoniRight from "../../../components/moleculs/TestimoniRight";
+import TestimoniTitle from "../../../components/atoms/TestimoniTitle";
+import Promote from "../../../components/organisms/Promote";
 
 export default function Home() {
   return (

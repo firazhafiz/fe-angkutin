@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import DropdownNav from "../atoms/DropdownNav";
 
 export default function Header() {
   return (
@@ -19,48 +20,33 @@ export default function Header() {
         </div>
         <ul className="flex-1 flex justify-center gap-12 text-white font-normal text-sm">
           <li>
-            <Link href="#order" className="hover:underline">
+            <Link href="/order" className="hover:text-gray-200">
               Order
             </Link>
           </li>
           <li>
-            <Link href="#consultation" className="hover:underline">
-              Consultation
+            <Link href="/consultant" className="hover:text-gray-200">
+              Consultant
             </Link>
           </li>
           <li>
-            <Link href="#contest" className="hover:underline">
+            <Link href="/contest" className="hover:text-gray-200">
               Contest
             </Link>
           </li>
-          <li className="relative group">
-            <button className="flex items-center gap-1 focus:outline-none">
-              Resources
-              <svg
-                className="w-4 h-4 ml-1"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+          <li>
+            <DropdownNav />
           </li>
         </ul>
         <div className="flex items-center gap-6">
           <Link
-            href="#login"
-            className="text-white font-semibold text-sm hover:underline"
+            href="/login"
+            className="text-white font-semibold text-sm hover:text-gray-200"
           >
             Login
           </Link>
           <Link
-            href="#register"
+            href="/register"
             className="bg-white text-[#016a70] font-semibold text-sm px-6 py-2 rounded-full shadow hover:bg-gray-100 transition-colors"
           >
             Register

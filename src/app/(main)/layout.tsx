@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins, Fredoka } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import Header from "@/../components/organisms/Header";
-import Footer from "../../components/organisms/Footer";
+import Footer from "../../../components/organisms/Footer";
 
 const poppins = Poppins({
   subsets: ["latin"],
