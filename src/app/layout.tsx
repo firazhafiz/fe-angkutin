@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Smart Waste Management",
   icons: {
     icon: [
-      { url: "/trash.svg", type: "image/svg+xml" }, // SVG sebagai favicon
+      { url: "/icons/trash-white.svg", type: "image/svg+xml" }, // SVG sebagai favicon
     ],
   },
 };
