@@ -18,7 +18,7 @@ export default function CardTutorialList() {
   useEffect(() => {
     const fetchTutorials = async () => {
       try {
-        const res = await fetch("http://localhost:4000/v1/tutorial"); // Ganti URL jika perlu
+        const res = await fetch("https://angkutin.vercel.app/v1/tutorial"); // Ganti URL jika perlu
         const data = await res.json();
         console.log(data);
         setTutorials(data.data); // asumsi respons API punya bentuk { data: [...] }

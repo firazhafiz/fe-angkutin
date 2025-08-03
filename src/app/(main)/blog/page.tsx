@@ -20,7 +20,7 @@ export default function Blog() {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await fetch("http://localhost:4000/v1/blog");
+        const response = await fetch("https://angkutin.vercel.app/v1/blog");
         const data = await response.json();
         setBlogs(data.data);
       } catch (error) {
