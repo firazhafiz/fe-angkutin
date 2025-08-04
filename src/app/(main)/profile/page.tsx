@@ -102,6 +102,7 @@ export default function ProfilePage() {
     };
 
     try {
+      console.log(user.id);
       const res = await fetch(`https://angkutin-omega.vercel.app/v1/user/${user.id}`, {
         method: "PUT",
         headers: {
