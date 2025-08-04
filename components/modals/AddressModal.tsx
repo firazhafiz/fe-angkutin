@@ -65,7 +65,6 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   useEffect(() => {
     if (isOpen) {
       const fetchRegencies = async () => {
-        // Check localStorage first
         const cachedRegencies = localStorage.getItem(CACHE_KEY_REGENCIES);
         if (cachedRegencies && isCacheValid(cachedRegencies)) {
           setRegencies(JSON.parse(cachedRegencies).data);
@@ -102,7 +101,6 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   useEffect(() => {
     if (formData.regency_id) {
       const fetchDistricts = async () => {
-        // Check localStorage for cached districts
         const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
         if (cachedDistricts && isCacheValid(cachedDistricts)) {
           const allDistricts: District[] = JSON.parse(cachedDistricts).data;
@@ -167,17 +165,44 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.regency_id || !formData.district_id || !formData.street) {
       setError("Please fill in all required fields");
       return;
     }
-    onSave({
-      ...formData,
-      regency: regencies.find((r) => r.id === formData.regency_id),
-      district: districts.find((d) => d.id === formData.district_id),
-    });
-    onClose();
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+
+      const url = initialData?.id ? `https://angkutin.vercel.app/v1/address/${initialData.id}` : "https://angkutin.vercel.app/v1/address";
+      const method = initialData?.id ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          regency_id: formData.regency_id,
+          district_id: formData.district_id,
+          street: formData.street,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Failed to ${initialData?.id ? "update" : "create"} address`);
+
+      const result = await res.json();
+      onSave({
+        ...formData,
+        id: result.data.id,
+        regency: regencies.find((r) => r.id === formData.regency_id),
+        district: districts.find((d) => d.id === formData.district_id),
+      });
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save address");
+    }
   };
 
   if (!isOpen) return null;
