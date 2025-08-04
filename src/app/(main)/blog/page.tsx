@@ -20,9 +20,6 @@ export default function Blog() {
       <section className="max-w-6xl mx-auto mb-20">
         <BlogList />
       </section>
-      <section className="max-w-6xl mx-auto mb-20">
-        <LoadMore />
-      </section>
     </main>
   );
 }
