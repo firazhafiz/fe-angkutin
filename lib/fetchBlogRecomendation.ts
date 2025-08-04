@@ -22,7 +22,9 @@ export async function fetchBlogRecommendations(excludeId: number) {
     } else {
       const data = await response.json();
       if (data.data && Array.isArray(data.data)) {
-        blogs = data.data as typeof blogs;
+        blogs = data.data
+          .filter((blog: { id: number }) => blog.id !== excludeId)
+          .slice(0, 3) as typeof blogs;
       }
     }
   } catch (error) {

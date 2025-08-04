@@ -2,6 +2,7 @@
 
 import CardBlog from "../atoms/CardBlog";
 
+// Definisikan tipe untuk blog rekomendasi
 interface BlogRecommendationItem {
   id: number;
   title: string;
@@ -20,6 +21,10 @@ export default function BlogRecomendation({
   excludeId,
   blogs,
 }: BlogRecomendationProps) {
+  const filteredBlogs = blogs
+    .filter((blog) => blog.id !== excludeId)
+    .slice(0, 3);
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-6">
@@ -30,7 +35,7 @@ export default function BlogRecomendation({
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {blogs.slice(0, 3).map((blog) => (
+        {filteredBlogs.map((blog) => (
           <CardBlog
             key={blog.id}
             id={blog.id}
