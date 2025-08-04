@@ -61,10 +61,11 @@ export default function ProfilePage() {
 
     try {
       const res = await fetch(`https://angkutin-omega.vercel.app/v1/user/${user.id}/update-avatar`, {
+        method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        method: "PUT",
         body: formData,
         // Jangan set Content-Type, browser akan set otomatis untuk FormData
       });
@@ -104,6 +105,7 @@ export default function ProfilePage() {
       const res = await fetch(`https://angkutin-omega.vercel.app/v1/user/${user.id}`, {
         method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedUser),
