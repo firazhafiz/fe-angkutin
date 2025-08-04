@@ -60,7 +60,7 @@ export default function ProfilePage() {
     formData.append("file", avatarFile);
 
     try {
-      const res = await fetch(`https://angkutin-omega.vercel.app/v1/${user.id}/update-avatar`, {
+      const res = await fetch(`https://angkutin-omega.vercel.app/v1/user/${user.id}/update-avatar`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -104,7 +104,6 @@ export default function ProfilePage() {
       const res = await fetch(`https://angkutin-omega.vercel.app/v1/user/${user.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedUser),
