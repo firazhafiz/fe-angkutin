@@ -7,6 +7,8 @@ interface BlogRecommendationItem {
   title: string;
   thumbnail: string;
   published_at: string;
+  author: string;
+  description: string;
 }
 
 interface BlogRecomendationProps {
@@ -28,14 +30,14 @@ export default function BlogRecomendation({
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {blogs.map((blog) => (
+        {blogs.slice(0, 3).map((blog) => (
           <CardBlog
             key={blog.id}
             id={blog.id}
             thumbnail={blog.thumbnail}
             title={blog.title}
-            description={""}
-            author={""}
+            description={blog.description}
+            author={blog.author}
             published_at={blog.published_at}
           />
         ))}

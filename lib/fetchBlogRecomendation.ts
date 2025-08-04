@@ -4,6 +4,8 @@ export async function fetchBlogRecommendations(excludeId: number) {
     title: string;
     thumbnail: string;
     published_at: string;
+    author: string;
+    description: string;
   }[] = [];
 
   try {
