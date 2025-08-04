@@ -46,13 +46,8 @@ export default function AddressPage() {
       console.log("Fetched addresses:", result.data);
 
       if (Array.isArray(result.data)) {
-        // Ensure no duplicates by filtering based on address id
-        setAddresses((prev) => {
-          const newAddresses = result.data.filter(
-            (newAddr) => !prev.some((addr) => addr.id === newAddr.id)
-          );
-          return [...prev.filter((addr) => addr.id), ...newAddresses];
-        });
+        // Replace state with fetched data to avoid duplicates
+        setAddresses(result.data.filter((addr) => addr.id)); // Ensure only addresses with valid id
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -116,32 +111,11 @@ export default function AddressPage() {
       const result = await res.json();
       const savedAddress = result.data;
 
-      // Fetch regency and district names to ensure complete address data
-      const regencyRes = await fetch("https://angkutin.vercel.app/v1/regency", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const districtRes = await fetch(
-        "https://angkutin.vercel.app/v1/district",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (!regencyRes.ok || !districtRes.ok) {
-        throw new Error("Failed to fetch regency or district data");
-      }
-
-      const regencies = (await regencyRes.json()).data;
-      const districts = (await districtRes.json()).data;
-
+      // Use regency and district from AddressModal to avoid extra API calls
       const completeAddress: Address = {
         ...savedAddress,
-        regency: regencies.find(
-          (r: { id: number; name: string }) => r.id === savedAddress.regency_id
-        ),
-        district: districts.find(
-          (d: { id: number; name: string }) => d.id === savedAddress.district_id
-        ),
+        regency: address.regency,
+        district: address.district,
       };
 
       // Update local state with complete address
