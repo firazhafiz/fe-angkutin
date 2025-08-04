@@ -40,7 +40,7 @@ interface AddressModalProps {
 export default function AddressModal({ isOpen, onClose, onSave, initialData }: AddressModalProps) {
   const [formData, setFormData] = useState<Address>({
     street: "",
-    regency: undefined,
+    regency_id: undefined,
     district_id: undefined,
   });
   const [regencies, setRegencies] = useState<Regency[]>([]);
@@ -49,10 +49,29 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Cache key and expiration (24 hours)
+  const CACHE_KEY_REGENCIES = "regencies_cache";
+  const CACHE_KEY_DISTRICTS = "districts_cache";
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+  // Helper to check cache validity
+  const isCacheValid = (cache: string | null) => {
+    if (!cache) return false;
+    const parsed = JSON.parse(cache);
+    return parsed.timestamp && Date.now() - parsed.timestamp < CACHE_DURATION;
+  };
+
+  // Fetch regencies with caching
   useEffect(() => {
     if (isOpen) {
-      // Fetch regencies when modal opens
       const fetchRegencies = async () => {
+        // Check localStorage first
+        const cachedRegencies = localStorage.getItem(CACHE_KEY_REGENCIES);
+        if (cachedRegencies && isCacheValid(cachedRegencies)) {
+          setRegencies(JSON.parse(cachedRegencies).data);
+          return;
+        }
+
         setLoadingRegencies(true);
         try {
           const token = localStorage.getItem("token");
@@ -65,6 +84,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
           const result = await res.json();
           if (Array.isArray(result.data)) {
             setRegencies(result.data);
+            localStorage.setItem(CACHE_KEY_REGENCIES, JSON.stringify({ data: result.data, timestamp: Date.now() }));
           } else {
             throw new Error("Invalid regency data format");
           }
@@ -78,10 +98,18 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     }
   }, [isOpen]);
 
+  // Fetch districts with caching
   useEffect(() => {
     if (formData.regency_id) {
-      // Fetch districts when regency is selected
       const fetchDistricts = async () => {
+        // Check localStorage for cached districts
+        const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
+        if (cachedDistricts && isCacheValid(cachedDistricts)) {
+          const allDistricts: District[] = JSON.parse(cachedDistricts).data;
+          setDistricts(allDistricts.filter((d) => d.regency_id === formData.regency_id));
+          return;
+        }
+
         setLoadingDistricts(true);
         try {
           const token = localStorage.getItem("token");
@@ -93,7 +121,9 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
           if (!res.ok) throw new Error("Failed to fetch districts");
           const result = await res.json();
           if (Array.isArray(result.data)) {
-            setDistricts(result.data.filter((d: District) => d.regency_id === formData.regency_id));
+            const filteredDistricts = result.data.filter((d: District) => d.regency_id === formData.regency_id);
+            setDistricts(filteredDistricts);
+            localStorage.setItem(CACHE_KEY_DISTRICTS, JSON.stringify({ data: result.data, timestamp: Date.now() }));
           } else {
             throw new Error("Invalid district data format");
           }
@@ -110,6 +140,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     }
   }, [formData.regency_id]);
 
+  // Initialize form data
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -132,6 +163,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     setFormData((prev) => ({
       ...prev,
       [name]: name === "regency_id" || name === "district_id" ? (value ? Number(value) : undefined) : value,
+      ...(name === "regency_id" && { district_id: undefined }), // Reset district_id when regency changes
     }));
   };
 
@@ -140,7 +172,11 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
       setError("Please fill in all required fields");
       return;
     }
-    onSave(formData);
+    onSave({
+      ...formData,
+      regency: regencies.find((r) => r.id === formData.regency_id),
+      district: districts.find((d) => d.id === formData.district_id),
+    });
     onClose();
   };
 
