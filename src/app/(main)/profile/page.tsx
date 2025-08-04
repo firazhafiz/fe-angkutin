@@ -17,11 +17,28 @@ export interface User {
   created_at: string;
 }
 
+function SuccessModal({ open, onClose, message }: { open: boolean; onClose: () => void; message: string }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-lg p-6 shadow-lg min-w-[300px] text-center">
+        <h3 className="text-lg font-semibold text-green-600 mb-2">Sukses!</h3>
+        <p className="mb-4">{message}</p>
+        <button className="bg-[#016A70] text-white px-4 py-2 rounded-lg" onClick={onClose}>
+          Tutup
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const [userData, setUserData] = useState<User | null>(null);
   const [token, setToken] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -72,6 +89,8 @@ export default function ProfilePage() {
       setUserData(updated);
       setAvatarFile(null);
       setImageError(false);
+      setSuccessMessage("Avatar berhasil diperbarui!");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error uploading avatar:", error);
     }
@@ -106,6 +125,8 @@ export default function ProfilePage() {
       const updated = await res.json();
       localStorage.setItem("user", JSON.stringify(updated.data));
       setUserData(updated.data);
+      setSuccessMessage("Profil berhasil diperbarui!");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error(error);
     }
@@ -114,58 +135,61 @@ export default function ProfilePage() {
   if (!userData) return null;
 
   return (
-    <SidebarLayout>
-      <h2 className="text-xl font-semibold text-[#016A70]">User Profile</h2>
-      <div className="flex h-full gap-4 mt-6">
-        {/* Sidebar kiri */}
-        <div className="w-2/5 h-full border rounded-2xl p-5 flex flex-col justify-center items-center">
-          {userData.avatar && !imageError ? (
-            <Image
-              src={userData.avatar}
-              alt="User Avatar"
-              width={150}
-              height={150}
-              className="h-[150px] w-[150px] rounded-full object-cover"
-              onError={() => setImageError(true)}
-              unoptimized // Add this to bypass Next.js image optimization for external URLs
-            />
-          ) : (
-            <div className="h-[150px] w-[150px] rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">{imageError ? "Error Loading" : "No Avatar"}</div>
-          )}
+    <>
+      <SuccessModal open={showSuccessModal} onClose={() => setShowSuccessModal(false)} message={successMessage} />
+      <SidebarLayout>
+        <h2 className="text-xl font-semibold text-[#016A70]">User Profile</h2>
+        <div className="flex h-full gap-4 mt-6">
+          {/* Sidebar kiri */}
+          <div className="w-2/5 h-full border rounded-2xl p-5 flex flex-col justify-center items-center">
+            {userData.avatar && !imageError ? (
+              <Image
+                src={userData.avatar}
+                alt="User Avatar"
+                width={150}
+                height={150}
+                className="h-[150px] w-[150px] rounded-full object-cover"
+                onError={() => setImageError(true)}
+                unoptimized // Add this to bypass Next.js image optimization for external URLs
+              />
+            ) : (
+              <div className="h-[150px] w-[150px] rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">{imageError ? "Error Loading" : "No Avatar"}</div>
+            )}
 
-          <label className="mt-3 cursor-pointer text-sm text-blue-500 hover:underline">
-            Ganti Foto
-            <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-          </label>
-          <div className="mt-3 text-center">
-            <h2 className="font-semibold text-[#016A70]">{userData.name}</h2>
-            <h3 className="text-slate-500 text-sm">{userData.phone || "Belum ada nomor telepon"}</h3>
+            <label className="mt-3 cursor-pointer text-sm text-blue-500 hover:underline">
+              Ganti Foto
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            </label>
+            <div className="mt-3 text-center">
+              <h2 className="font-semibold text-[#016A70]">{userData.name}</h2>
+              <h3 className="text-slate-500 text-sm">{userData.phone || "Belum ada nomor telepon"}</h3>
+            </div>
+          </div>
+          {/* Form kanan */}
+          <div className="w-full h-full border rounded-2xl p-5">
+            <h2 className="text-xl font-semibold text-[#016A70]">General Information</h2>
+
+            <div className="mt-2">
+              <label className="text-slate-500 font-medium">Fullname</label>
+              <input type="text" value={userData?.name ?? ""} onChange={(e) => handleFieldChange("name", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+            </div>
+            <div className="mt-2">
+              <label className="text-slate-500 font-medium">Email</label>
+              <input type="email" value={userData.email} onChange={(e) => handleFieldChange("email", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+            </div>
+            <div className="mt-2">
+              <label className="text-slate-500 font-medium">Phone</label>
+              <input type="text" value={userData.phone ?? ""} onChange={(e) => handleFieldChange("phone", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+            </div>
+
+            <div className="mt-4">
+              <button onClick={handleUpdate} className="rounded-lg bg-[#016A70] px-4 py-2 text-white">
+                Update
+              </button>
+            </div>
           </div>
         </div>
-        {/* Form kanan */}
-        <div className="w-full h-full border rounded-2xl p-5">
-          <h2 className="text-xl font-semibold text-[#016A70]">General Information</h2>
-
-          <div className="mt-2">
-            <label className="text-slate-500 font-medium">Fullname</label>
-            <input type="text" value={userData?.name ?? ""} onChange={(e) => handleFieldChange("name", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
-          </div>
-          <div className="mt-2">
-            <label className="text-slate-500 font-medium">Email</label>
-            <input type="email" value={userData.email} onChange={(e) => handleFieldChange("email", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
-          </div>
-          <div className="mt-2">
-            <label className="text-slate-500 font-medium">Phone</label>
-            <input type="text" value={userData.phone ?? ""} onChange={(e) => handleFieldChange("phone", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
-          </div>
-
-          <div className="mt-4">
-            <button onClick={handleUpdate} className="rounded-lg bg-[#016A70] px-4 py-2 text-white">
-              Update
-            </button>
-          </div>
-        </div>
-      </div>
-    </SidebarLayout>
+      </SidebarLayout>
+    </>
   );
 }
