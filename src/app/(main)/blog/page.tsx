@@ -1,9 +1,6 @@
-"use client";
-
 import HeaderBlog from "../../../../components/organisms/HeaderBlog";
 import BlogList from "../../../../components/organisms/BlogList";
 import LoadMore from "../../../../components/atoms/LoadMore";
-import { useEffect, useState } from "react";
 
 export interface BlogItem {
   id: number;
@@ -14,21 +11,26 @@ export interface BlogItem {
   published_at: string;
 }
 
-export default function Blog() {
-  const [blogs, setBlogs] = useState<BlogItem[]>([]);
+export default async function Blog() {
+  let blogs: BlogItem[] = [];
 
-  useEffect(() => {
-    const fetchBlog = async () => {
-      try {
-        const response = await fetch("https://angkutin.vercel.app/v1/blog");
-        const data = await response.json();
-        setBlogs(data.data);
-      } catch (error) {
-        console.error("Failed to fetch blogs:", error);
-      }
-    };
-    fetchBlog();
-  }, []);
+  try {
+    const response = await fetch("https://angkutin.vercel.app/v1/blog", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      console.error(`HTTP error! status: ${response.status}`);
+    } else {
+      const { data = [] } = (await response.json()) || {};
+      blogs = Array.isArray(data) ? data : [];
+    }
+  } catch (error) {
+    console.error("Failed to fetch blogs:", error);
+  }
 
   return (
     <main className="w-full relative min-h-screen bg-gray-100 overflow-hidden">
