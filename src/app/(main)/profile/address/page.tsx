@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import editIcon from "../../../../../public/icons/edit.png";
@@ -13,11 +12,11 @@ export default function AddressPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch data address saat component mount
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
         const token = localStorage.getItem("token");
+        console.log(token);
         const res = await fetch("https://angkutin.vercel.app/v1/address", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -26,6 +25,7 @@ export default function AddressPage() {
         if (!res.ok) throw new Error("Failed to fetch addresses");
 
         const result = await res.json();
+        console.log(result.data);
         setAddresses(result.data); // sesuai response dari backend
       } catch (err) {
         setError("Failed to load address data.");
