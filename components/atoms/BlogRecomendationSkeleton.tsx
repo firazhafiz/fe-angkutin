@@ -1,7 +1,6 @@
 export default function BlogRecomendationSkeleton() {
   return (
     <div className="mt-10">
-      <div className="w-1/4 h-6 bg-gray-300 rounded mb-4" />
       <div className="flex gap-6">
         {Array.from({ length: 3 }).map((_, i) => (
           <div

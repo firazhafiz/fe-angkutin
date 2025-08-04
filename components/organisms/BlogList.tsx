@@ -1,7 +1,7 @@
 import CardBlogList from "../moleculs/CardBlogList";
 import { Suspense } from "react";
 import { fetchBlogs } from "../../lib/fetchBlog";
-import BlogListSkeleton from "../atoms/BlogListSkeleton";
+import BlogRecomendationSkeleton from "../atoms/BlogRecomendationSkeleton";
 
 export default function BlogList() {
   return (
@@ -10,7 +10,7 @@ export default function BlogList() {
         <h2 className="text-2xl md:text-3xl font-bold text-black-100 mb-12">
           Recent Blog Posts
         </h2>
-        <Suspense fallback={<BlogListSkeleton />}>
+        <Suspense fallback={<BlogRecomendationSkeleton />}>
           <BlogListData />
         </Suspense>
       </div>
