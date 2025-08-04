@@ -99,7 +99,10 @@ export default function AddressModal({
         isOpen={true}
         onClose={handleBackToAddressList}
         onConfirm={handleNewAddressConfirm}
-        user={user}
+        userData={{
+          name: user?.name || "",
+          phone: user?.phone || "",
+        }}
       />
     );
   }
@@ -111,7 +114,6 @@ export default function AddressModal({
         onClose={handleBackToAddressList}
         onConfirm={handleEditAddressConfirm}
         addressData={selectedAddress!}
-        user={user}
       />
     );
   }
@@ -133,10 +135,7 @@ export default function AddressModal({
           <h2 className="text-xl font-bold text-gray-800">My Address</h2>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
-          <AddressList
-            onEdit={handleEditAddress}
-            addresses={user?.addresses || []}
-          />
+          <AddressList onEdit={handleEditAddress} />
         </div>
         <div className="p-6 border-t border-gray-200 flex-shrink-0">
           <div className="flex justify-between items-center">
