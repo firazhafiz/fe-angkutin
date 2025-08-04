@@ -12,7 +12,14 @@ interface CardBlogProps {
   published_at: string;
 }
 
-export default function CardBlog({ id, thumbnail, title, description, author, published_at }: CardBlogProps) {
+export default function CardBlog({
+  id,
+  thumbnail,
+  title,
+  description,
+  author,
+  published_at,
+}: CardBlogProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -20,22 +27,38 @@ export default function CardBlog({ id, thumbnail, title, description, author, pu
   };
 
   return (
-    <div onClick={handleClick} className=" h-full cursor-pointer overflow-hidden">
+    <div
+      onClick={handleClick}
+      className="h-full cursor-pointer overflow-hidden"
+    >
       {/* Image */}
       <div className="w-full h-[250px] relative">
-        <Image src={thumbnail} alt={title} fill className="object-cover rounded-lg" />
+        <Image
+          src={thumbnail}
+          alt={title}
+          fill
+          className="object-cover rounded-lg"
+        />
       </div>
 
       {/* Content */}
-      <div className="py-4 flex flex-col h-[140px]">
-        {/* Title */}
-        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{title}</h3>
+      <div className="py-4 flex flex-col h-[180px]">
+        {/* Title - Fixed height for consistent spacing */}
+        <div className="h-[52px] mb-3">
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-2 leading-tight">
+            {title}
+          </h3>
+        </div>
 
-        {/* Description */}
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-1">{description}</p>
+        {/* Description - Fixed height for consistent spacing */}
+        <div className="mb-4">
+          <p className="text-sm text-gray-600 line-clamp-2 leading-tight">
+            {description}
+          </p>
+        </div>
 
-        {/* Author and Date */}
-        <div className="flex items-center text-xs font-semibold text-black-100">
+        {/* Author and Date - Fixed at bottom */}
+        <div className="flex items-center text-xs font-semibold text-black-100 ">
           <span>{author}</span>
           <span className="mx-2">•</span>
           <span>

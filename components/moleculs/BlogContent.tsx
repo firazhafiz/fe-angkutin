@@ -32,7 +32,10 @@ export default function BlogContent({ blog }: { blog: BlogItem }) {
         <Image
           src={blog.thumbnail}
           alt={blog.title}
+          width={1000}
+          height={1000}
           className="w-full max-w-[860px] h-[480px] object-cover rounded-xl"
+          priority={true}
         />
       </div>
 
