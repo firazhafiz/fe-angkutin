@@ -25,7 +25,7 @@ export interface Consultation {
   id: number;
   user_id: number;
   consultan_id: number;
-  status: 'pending' | 'accepted' | 'rejected' | 'completed';
+  status: "pending" | "accepted" | "rejected" | "completed";
   created_at: string;
   user?: Consultant;
   consultan?: Consultant;
@@ -202,4 +202,4 @@ export function useConsultant() {
     throw new Error("useConsultant must be used within a ConsultantProvider");
   }
   return context;
-} 
+}
