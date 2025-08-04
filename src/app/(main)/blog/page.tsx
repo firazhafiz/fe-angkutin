@@ -1,6 +1,8 @@
 import HeaderBlog from "../../../../components/organisms/HeaderBlog";
 import BlogList from "../../../../components/organisms/BlogList";
 import LoadMore from "../../../../components/atoms/LoadMore";
+import BlogListSkeleton from "../../../../components/atoms/BlogListSkeleton";
+import { Suspense } from "react";
 
 export interface BlogItem {
   id: number;
@@ -38,7 +40,9 @@ export default async function Blog() {
         <HeaderBlog />
       </section>
       <section className="max-w-6xl mx-auto mb-20">
-        <BlogList blogs={blogs} />
+        <Suspense fallback={<BlogListSkeleton />}>
+          <BlogList blogs={blogs} />
+        </Suspense>
       </section>
       <section className="max-w-6xl mx-auto mb-20">
         <LoadMore />
