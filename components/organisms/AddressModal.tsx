@@ -1,15 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddressList from "../moleculs/AddressList";
 import NewAddress from "../moleculs/NewAddress";
 import EditAddress from "../moleculs/EditAddress";
-
-interface AddressData {
-  name: string;
-  phone: string;
-  address: string;
-}
+import { User, AddressData, Address } from "../../types/user";
 
 interface FormData {
   name: string;
@@ -24,12 +19,16 @@ interface AddressModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit: (address: AddressData) => void;
+  user?: User | null; // Data user untuk alamat dinamis
+  initialAddress?: AddressData; // Pastikan initialAddress ada di sini
 }
 
 export default function AddressModal({
   isOpen,
   onClose,
   onEdit,
+  user,
+  initialAddress,
 }: AddressModalProps) {
   const [currentModal, setCurrentModal] = useState<
     "address-list" | "new-address" | "edit-address"
@@ -37,10 +36,13 @@ export default function AddressModal({
   const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(
     null
   );
-  const [userData] = useState({
-    name: "Firaz Fulvian Hafiz",
-    phone: "081234567890",
-  });
+
+  // Inisialisasi selectedAddress dari initialAddress jika ada
+  useEffect(() => {
+    if (initialAddress && !selectedAddress) {
+      setSelectedAddress(initialAddress);
+    }
+  }, [initialAddress, selectedAddress]);
 
   const handleAddNewAddress = () => {
     setCurrentModal("new-address");
@@ -52,15 +54,25 @@ export default function AddressModal({
   };
 
   const handleNewAddressConfirm = (addressData: FormData) => {
-    // Handle new address confirmation
-    console.log("New address data:", addressData);
+    const newAddress: AddressData = {
+      name: addressData.name,
+      phone: addressData.phone,
+      address: `${addressData.streetAddress}, ${addressData.city}, ${addressData.provinsi}, ${addressData.detailLainnya}`,
+    };
+    console.log("New address data:", newAddress);
     setCurrentModal("address-list");
+    onEdit(newAddress);
   };
 
   const handleEditAddressConfirm = (addressData: FormData) => {
-    // Handle edit address confirmation
-    console.log("Edit address data:", addressData);
+    const updatedAddress: AddressData = {
+      name: addressData.name,
+      phone: addressData.phone,
+      address: `${addressData.streetAddress}, ${addressData.city}, ${addressData.provinsi}, ${addressData.detailLainnya}`,
+    };
+    console.log("Edit address data:", updatedAddress);
     setCurrentModal("address-list");
+    onEdit(updatedAddress);
   };
 
   const handleBackToAddressList = () => {
@@ -73,25 +85,25 @@ export default function AddressModal({
   };
 
   const handleConfirm = () => {
-    // Handle confirm selection
+    if (selectedAddress) {
+      onEdit(selectedAddress);
+    }
     onClose();
   };
 
   if (!isOpen) return null;
 
-  // Render New Address Modal
   if (currentModal === "new-address") {
     return (
       <NewAddress
         isOpen={true}
         onClose={handleBackToAddressList}
         onConfirm={handleNewAddressConfirm}
-        userData={userData}
+        user={user}
       />
     );
   }
 
-  // Render Edit Address Modal
   if (currentModal === "edit-address") {
     return (
       <EditAddress
@@ -99,11 +111,11 @@ export default function AddressModal({
         onClose={handleBackToAddressList}
         onConfirm={handleEditAddressConfirm}
         addressData={selectedAddress!}
+        user={user}
       />
     );
   }
 
-  // Render Main Address List Modal
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -117,28 +129,23 @@ export default function AddressModal({
       }}
     >
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col mx-4">
-        {/* Header */}
         <div className="p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-xl font-bold text-gray-800">My Address</h2>
         </div>
-
-        {/* Address List */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          <AddressList onEdit={handleEditAddress} />
+          <AddressList
+            onEdit={handleEditAddress}
+            addresses={user?.addresses || []}
+          />
         </div>
-
-        {/* Actions */}
         <div className="p-6 border-t border-gray-200 flex-shrink-0">
           <div className="flex justify-between items-center">
-            {/* Add New Address Button */}
             <button
               onClick={handleAddNewAddress}
               className="py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm"
             >
               Add new address
             </button>
-
-            {/* Cancel and Confirm Buttons */}
             <div className="flex gap-2">
               <button
                 onClick={handleCloseModal}

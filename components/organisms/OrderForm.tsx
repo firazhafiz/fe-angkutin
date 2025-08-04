@@ -1,8 +1,13 @@
+// components/organisms/OrderForm.tsx
 import OrderAddress from "../moleculs/OrderAddress";
 import BookingInformation from "../moleculs/BookingInformation";
 import Link from "next/link";
+import { Suspense } from "react";
+// Hapus impor User karena tidak lagi digunakan
+// import { User } from "../../types/user";
 
 export default function OrderForm() {
+  // Hapus prop user dari parameter
   return (
     <div className="w-full max-w-[750px] mx-auto bg-white rounded-xl shadow-sm">
       {/* Header */}
@@ -15,7 +20,13 @@ export default function OrderForm() {
 
       {/* Form Content */}
       <div className="px-8 pb-8 space-y-6">
-        <OrderAddress />
+        <Suspense
+          fallback={
+            <div className="bg-gray-200 animate-pulse h-40 w-full rounded-lg"></div>
+          }
+        >
+          <OrderAddress /> {/* Hapus prop user */}
+        </Suspense>
         <BookingInformation />
         <Link href="/order/id">
           <button className="w-full bg-tosca text-white font-semibold py-3 text-md rounded-md shadow-md hover:bg-tosca/90 hover:shadow-lg transition-all duration-200">
@@ -23,8 +34,6 @@ export default function OrderForm() {
           </button>
         </Link>
       </div>
-
-      {/* Place Order Button */}
     </div>
   );
 }
