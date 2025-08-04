@@ -17,7 +17,7 @@ export default function CardConsultantList() {
 
   const handleConsultationClick = async (consultantId: number) => {
     if (isCreatingConsultation) return; // Prevent multiple clicks
-    
+
     setIsCreatingConsultation(consultantId);
     try {
       const consultation = await createConsultation(consultantId);
@@ -70,18 +70,12 @@ export default function CardConsultantList() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                {consultant.avatar ? (
-                  <img src={consultant.avatar} alt={consultant.name} className="w-12 h-12 rounded-full object-cover" />
-                ) : (
-                  <span className="text-gray-500 text-lg">{consultant.name.charAt(0).toUpperCase()}</span>
-                )}
+                {consultant.avatar ? <img src={consultant.avatar} alt={consultant.name} className="w-12 h-12 rounded-full object-cover" /> : <span className="text-gray-500 text-lg">{consultant.name.charAt(0).toUpperCase()}</span>}
               </div>
               <div>
                 <h3 className="font-semibold text-[#016A70]">{consultant.name}</h3>
                 <p className="text-sm text-gray-500">{consultant.category?.name || "No Category"}</p>
-                {consultant.specialization && (
-                  <p className="text-xs text-gray-400">{consultant.specialization}</p>
-                )}
+                {consultant.specialization && <p className="text-xs text-gray-400">{consultant.specialization}</p>}
                 {consultant.rating && (
                   <div className="flex items-center mt-1">
                     <span className="text-yellow-500 text-sm">★</span>
@@ -91,17 +85,13 @@ export default function CardConsultantList() {
               </div>
             </div>
             <div className="flex space-x-2">
-              <button
-                onClick={() => handleDetailClick(consultant.id)}
-                className="px-3 py-1 text-sm text-[#016A70] border border-[#016A70] rounded hover:bg-[#016A70] hover:text-white transition-colors"
-              >
+              <button onClick={() => handleDetailClick(consultant.id)} className="px-3 py-1 text-sm text-[#016A70] border border-[#016A70] rounded hover:bg-[#016A70] hover:text-white transition-colors">
                 Detail
               </button>
               <button
                 onClick={() => handleConsultationClick(consultant.id)}
                 disabled={isCreatingConsultation === consultant.id}
-                className="px-3 py-1 text-sm bg-[#016A70] text-white rounded hover:bg-[#015a5f] transition-colors disabled:opacity-50"
-              >
+                className="px-3 py-1 text-sm bg-[#016A70] text-white rounded hover:bg-[#015a5f] transition-colors disabled:opacity-50">
                 {isCreatingConsultation === consultant.id ? "Creating..." : "Consult"}
               </button>
             </div>
