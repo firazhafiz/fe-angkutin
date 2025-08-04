@@ -37,7 +37,12 @@ interface AddressModalProps {
   initialData?: Address;
 }
 
-export default function AddressModal({ isOpen, onClose, onSave, initialData }: AddressModalProps) {
+export default function AddressModal({
+  isOpen,
+  onClose,
+  onSave,
+  initialData,
+}: AddressModalProps) {
   const [formData, setFormData] = useState<Address>({
     street: "",
     regency_id: undefined,
@@ -49,19 +54,16 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Cache key and expiration (24 hours)
   const CACHE_KEY_REGENCIES = "regencies_cache";
   const CACHE_KEY_DISTRICTS = "districts_cache";
   const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-  // Helper to check cache validity
   const isCacheValid = (cache: string | null) => {
     if (!cache) return false;
     const parsed = JSON.parse(cache);
     return parsed.timestamp && Date.now() - parsed.timestamp < CACHE_DURATION;
   };
 
-  // Fetch regencies with caching
   useEffect(() => {
     if (isOpen) {
       const fetchRegencies = async () => {
@@ -83,12 +85,17 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
           const result = await res.json();
           if (Array.isArray(result.data)) {
             setRegencies(result.data);
-            localStorage.setItem(CACHE_KEY_REGENCIES, JSON.stringify({ data: result.data, timestamp: Date.now() }));
+            localStorage.setItem(
+              CACHE_KEY_REGENCIES,
+              JSON.stringify({ data: result.data, timestamp: Date.now() })
+            );
           } else {
             throw new Error("Invalid regency data format");
           }
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load regencies");
+          setError(
+            err instanceof Error ? err.message : "Failed to load regencies"
+          );
         } finally {
           setLoadingRegencies(false);
         }
@@ -97,14 +104,15 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     }
   }, [isOpen]);
 
-  // Fetch districts with caching
   useEffect(() => {
     if (formData.regency_id) {
       const fetchDistricts = async () => {
         const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
         if (cachedDistricts && isCacheValid(cachedDistricts)) {
           const allDistricts: District[] = JSON.parse(cachedDistricts).data;
-          setDistricts(allDistricts.filter((d) => d.regency_id === formData.regency_id));
+          setDistricts(
+            allDistricts.filter((d) => d.regency_id === formData.regency_id)
+          );
           return;
         }
 
@@ -119,14 +127,21 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
           if (!res.ok) throw new Error("Failed to fetch districts");
           const result = await res.json();
           if (Array.isArray(result.data)) {
-            const filteredDistricts = result.data.filter((d: District) => d.regency_id === formData.regency_id);
+            const filteredDistricts = result.data.filter(
+              (d: District) => d.regency_id === formData.regency_id
+            );
             setDistricts(filteredDistricts);
-            localStorage.setItem(CACHE_KEY_DISTRICTS, JSON.stringify({ data: result.data, timestamp: Date.now() }));
+            localStorage.setItem(
+              CACHE_KEY_DISTRICTS,
+              JSON.stringify({ data: result.data, timestamp: Date.now() })
+            );
           } else {
             throw new Error("Invalid district data format");
           }
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load districts");
+          setError(
+            err instanceof Error ? err.message : "Failed to load districts"
+          );
         } finally {
           setLoadingDistricts(false);
         }
@@ -138,7 +153,6 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     }
   }, [formData.regency_id]);
 
-  // Initialize form data
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -156,16 +170,23 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "regency_id" || name === "district_id" ? (value ? Number(value) : undefined) : value,
+      [name]:
+        name === "regency_id" || name === "district_id"
+          ? value
+            ? Number(value)
+            : undefined
+          : value,
       ...(name === "regency_id" && { district_id: undefined }), // Reset district_id when regency changes
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!formData.regency_id || !formData.district_id || !formData.street) {
       setError("Please fill in all required fields");
       return;
@@ -174,10 +195,12 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No authentication token found");
 
-      const url = initialData?.id ? `https://angkutin.vercel.app/v1/address/${initialData.id}` : "https://angkutin.vercel.app/v1/address";
+      const url = initialData?.id
+        ? `https://angkutin.vercel.app/v1/address/${initialData.id}`
+        : "https://angkutin.vercel.app/v1/address";
       const method = initialData?.id ? "PUT" : "POST";
-      console.log(formData.regency_id, formData.district_id, formData.street);
-      const res = await fetch(url, {
+
+      fetch(url, {
         method,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -188,18 +211,32 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
           district_id: formData.district_id,
           street: formData.street,
         }),
-      });
-
-      if (!res.ok) throw new Error(`Failed to ${initialData?.id ? "update" : "create"} address`);
-
-      const result = await res.json();
-      onSave({
-        ...formData,
-        id: result.data.id,
-        regency: regencies.find((r) => r.id === formData.regency_id),
-        district: districts.find((d) => d.id === formData.district_id),
-      });
-      onClose();
+      })
+        .then((res) => {
+          if (!res.ok)
+            throw new Error(
+              `Failed to ${initialData?.id ? "update" : "create"} address: ${
+                res.statusText
+              }`
+            );
+          return res.json();
+        })
+        .then((result) => {
+          onSave({
+            id: result.data.id,
+            regency_id: formData.regency_id,
+            district_id: formData.district_id,
+            street: formData.street,
+            regency: regencies.find((r) => r.id === formData.regency_id),
+            district: districts.find((d) => d.id === formData.district_id),
+          });
+          onClose();
+        })
+        .catch((err) => {
+          setError(
+            err instanceof Error ? err.message : "Failed to save address"
+          );
+        });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save address");
     }
@@ -210,10 +247,18 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   return (
     <div className="fixed inset-0 bg-black/30 bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-[650px] shadow-lg">
-        <h2 className="text-lg font-semibold text-[#016A70] mb-4">{initialData ? "Edit Address" : "Add Address"}</h2>
+        <h2 className="text-lg font-semibold text-[#016A70] mb-4">
+          {initialData ? "Edit Address" : "Add Address"}
+        </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <div className="space-y-3">
-          <select name="regency_id" value={formData.regency_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingRegencies}>
+          <select
+            name="regency_id"
+            value={formData.regency_id || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded-lg text-slate-500 mt-2"
+            disabled={loadingRegencies}
+          >
             <option value="">Select City</option>
             {regencies.map((regency) => (
               <option key={regency.id} value={regency.id}>
@@ -221,7 +266,13 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
               </option>
             ))}
           </select>
-          <select name="district_id" value={formData.district_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingDistricts || !formData.regency_id}>
+          <select
+            name="district_id"
+            value={formData.district_id || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded-lg text-slate-500 mt-2"
+            disabled={loadingDistricts || !formData.regency_id}
+          >
             <option value="">Select District</option>
             {districts.map((district) => (
               <option key={district.id} value={district.id}>
@@ -229,13 +280,23 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
               </option>
             ))}
           </select>
-          <input type="text" name="street" placeholder="Street" value={formData.street} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
+          <input
+            type="text"
+            name="street"
+            placeholder="Street"
+            value={formData.street}
+            onChange={handleChange}
+            className="w-full border p-2 rounded-lg text-slate-500 mt-2"
+          />
         </div>
         <div className="mt-5 flex justify-end gap-3">
           <button onClick={onClose} className="text-slate-500 cursor-pointer">
             Cancel
           </button>
-          <button onClick={handleSubmit} className="bg-[#016A70] text-white px-4 py-2 rounded cursor-pointer">
+          <button
+            onClick={handleSubmit}
+            className="bg-[#016A70] text-white px-4 py-2 rounded cursor-pointer"
+          >
             Save
           </button>
         </div>
