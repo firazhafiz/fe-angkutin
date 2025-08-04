@@ -17,8 +17,11 @@ export default function AddressPage() {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const res = await fetch("/v1/address", {
-          credentials: "include", // agar cookie (auth) ikut dikirim
+        const token = localStorage.getItem("token");
+        const res = await fetch("https://angkutin.vercel.app/v1/address", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }, // agar cookie (auth) ikut dikirim
         });
         if (!res.ok) throw new Error("Failed to fetch addresses");
 
