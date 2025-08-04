@@ -20,7 +20,7 @@ export interface User {
 function SuccessModal({ open, onClose, message }: { open: boolean; onClose: () => void; message: string }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-40">
       <div className="bg-white rounded-lg p-6 shadow-lg min-w-[300px] text-center">
         <h3 className="text-lg font-semibold text-green-600 mb-2">Sukses!</h3>
         <p className="mb-4">{message}</p>
