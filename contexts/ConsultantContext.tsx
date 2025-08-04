@@ -82,13 +82,14 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      // Using the correct endpoint from your routes
-      const res = await fetch("https://angkutin.vercel.app/v1/consultant/categories", {
+      // Try using the categories endpoint without consultant prefix
+      const res = await fetch("https://angkutin.vercel.app/v1/categories", {
         headers,
       });
 
       if (!res.ok) {
         const errorData = await res.text();
+        console.error("API Error Response:", errorData);
         throw new Error(`Failed to fetch categories: ${errorData}`);
       }
 
@@ -120,8 +121,8 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      // Using the correct endpoint from your routes
-      const res = await fetch(`https://angkutin.vercel.app/v1/consultant/category/${categoryId}`, {
+      // Using a consistent endpoint approach
+      const res = await fetch(`https://angkutin.vercel.app/v1/consultants?category_id=${categoryId}`, {
         headers,
       });
 
