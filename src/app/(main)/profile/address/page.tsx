@@ -20,7 +20,7 @@ export default function AddressPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Memoized fetch function untuk menghindari re-creation
+  // Memoized fetch function to avoid re-creation
   const fetchAddresses = useCallback(async () => {
     try {
       setLoading(true);
@@ -43,9 +43,16 @@ export default function AddressPage() {
       }
 
       const result: ApiResponse = await res.json();
+      console.log("Fetched addresses:", result.data);
 
       if (Array.isArray(result.data)) {
-        setAddresses(result.data);
+        // Ensure no duplicates by filtering based on address id
+        setAddresses((prev) => {
+          const newAddresses = result.data.filter(
+            (newAddr) => !prev.some((addr) => addr.id === newAddr.id)
+          );
+          return [...prev.filter((addr) => addr.id), ...newAddresses];
+        });
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -64,63 +71,10 @@ export default function AddressPage() {
     fetchAddresses();
   }, [fetchAddresses]);
 
-  // Handle save address with API integration
-  // const handleSave = async (address: Address) => {
-  //   try {
-  //     setIsSubmitting(true);
-  //     const token = localStorage.getItem("token");
-
-  //     if (!token) {
-  //       throw new Error("No authentication token found");
-  //     }
-
-  //     const isEditing = editingIndex !== null;
-  //     const url = isEditing ? `https://angkutin.vercel.app/v1/address/${addresses[editingIndex!].id}` : "https://angkutin.vercel.app/v1/address";
-
-  //     const method = isEditing ? "PUT" : "POST";
-
-  //     const res = await fetch(url, {
-  //       method,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(address),
-  //     });
-
-  //     if (!res.ok) {
-  //       const errorData = await res.text();
-  //       throw new Error(`Failed to ${isEditing ? "update" : "create"} address: ${errorData}`);
-  //     }
-
-  //     const result = await res.json();
-
-  //     // Update local state
-  //     if (isEditing) {
-  //       setAddresses((prev) => prev.map((addr, index) => (index === editingIndex ? result.data : addr)));
-  //     } else {
-  //       setAddresses((prev) => [...prev, result.data]);
-  //     }
-
-  //     // Reset form state
-  //     setEditingIndex(null);
-  //     setModalOpen(false);
-
-  //     // Show success message (you can add a toast notification here)
-  //     console.log(`Address ${isEditing ? "updated" : "created"} successfully`);
-  //   } catch (err) {
-  //     const errorMessage = err instanceof Error ? err.message : `Failed to ${editingIndex !== null ? "update" : "create"} address`;
-  //     setError(errorMessage);
-  //     console.error("Error saving address:", err);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
   const handleSave = async (address: Address) => {
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem("token");
-
       if (!token) {
         throw new Error("No authentication token found");
       }
@@ -134,7 +88,7 @@ export default function AddressPage() {
 
       const method = isEditing ? "PUT" : "POST";
 
-      // Payload yang dikirim ke API
+      // Payload to send to API
       const payload = {
         street: address.street,
         regency_id: address.regency_id,
@@ -151,7 +105,7 @@ export default function AddressPage() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json(); // Gunakan .json() untuk detail error
+        const errorData = await res.json();
         throw new Error(
           `Failed to ${
             isEditing ? "update" : "create"
@@ -160,16 +114,47 @@ export default function AddressPage() {
       }
 
       const result = await res.json();
+      const savedAddress = result.data;
 
-      // Update local state dengan data dari API
+      // Fetch regency and district names to ensure complete address data
+      const regencyRes = await fetch("https://angkutin.vercel.app/v1/regency", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const districtRes = await fetch(
+        "https://angkutin.vercel.app/v1/district",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!regencyRes.ok || !districtRes.ok) {
+        throw new Error("Failed to fetch regency or district data");
+      }
+
+      const regencies = (await regencyRes.json()).data;
+      const districts = (await districtRes.json()).data;
+
+      const completeAddress: Address = {
+        ...savedAddress,
+        regency: regencies.find((r: any) => r.id === savedAddress.regency_id),
+        district: districts.find((d: any) => d.id === savedAddress.district_id),
+      };
+
+      // Update local state with complete address
       if (isEditing) {
         setAddresses((prev) =>
           prev.map((addr, index) =>
-            index === editingIndex ? result.data : addr
+            index === editingIndex ? completeAddress : addr
           )
         );
       } else {
-        setAddresses((prev) => [...prev, result.data]);
+        setAddresses((prev) => {
+          // Prevent duplicates by checking if address already exists
+          if (prev.some((addr) => addr.id === completeAddress.id)) {
+            return prev;
+          }
+          return [...prev, completeAddress];
+        });
       }
 
       setEditingIndex(null);
