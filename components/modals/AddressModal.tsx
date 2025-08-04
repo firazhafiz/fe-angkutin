@@ -1,19 +1,12 @@
-// components/modals/AddressModal.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
 
-interface AddressModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (address: Address) => void;
-  initialData?: Address;
-}
-
 export interface Address {
   id?: number;
   user_id?: number;
+  city_id?: number;
+  district_id?: number;
   street: string;
   regency?: {
     id: number;
@@ -26,6 +19,13 @@ export interface Address {
   };
 }
 
+interface AddressModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (address: Address) => void;
+  initialData?: Address;
+}
+
 export default function AddressModal({ isOpen, onClose, onSave, initialData }: AddressModalProps) {
   const [formData, setFormData] = useState<Address>({
     street: "",
@@ -35,7 +35,12 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        street: initialData.street || "",
+        regency: initialData.regency || undefined,
+        district: initialData.district || undefined,
+      });
     } else {
       setFormData({
         street: "",
@@ -48,26 +53,27 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if (name === "regency") {
-      setFormData((prev) => ({
-        ...prev,
-        regency: {
-          id: 0, // You might want to get this from a dropdown or API
-          name: value,
-        },
-      }));
-    } else if (name === "district") {
-      setFormData((prev) => ({
-        ...prev,
-        district: {
-          id: 0, // You might want to get this from a dropdown or API
-          name: value,
-          regency_id: prev.regency?.id || 0,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => {
+      if (name === "regency") {
+        return {
+          ...prev,
+          regency: value ? { id: prev.regency?.id || 0, name: value } : undefined,
+        };
+      }
+      if (name === "district") {
+        return {
+          ...prev,
+          district: value
+            ? {
+                id: prev.district?.id || 0,
+                name: value,
+                regency_id: prev.regency?.id || 0,
+              }
+            : undefined,
+        };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = () => {

@@ -16,19 +16,25 @@ export default function AddressPage() {
     const fetchAddresses = async () => {
       try {
         const token = localStorage.getItem("token");
-        console.log(token);
+        if (!token) throw new Error("No authentication token found");
+
         const res = await fetch("https://angkutin.vercel.app/v1/address", {
           headers: {
             Authorization: `Bearer ${token}`,
-          }, // agar cookie (auth) ikut dikirim
+          },
         });
+
         if (!res.ok) throw new Error("Failed to fetch addresses");
 
         const result = await res.json();
-        console.log(result.data);
-        setAddresses(result.data); // sesuai response dari backend
+        // Validate that result.data is an array of Address objects
+        if (Array.isArray(result.data)) {
+          setAddresses(result.data);
+        } else {
+          throw new Error("Invalid data format received");
+        }
       } catch (err) {
-        setError("Failed to load address data.");
+        setError(err instanceof Error ? err.message : "Failed to load address data.");
         console.error(err);
       } finally {
         setLoading(false);
@@ -47,6 +53,7 @@ export default function AddressPage() {
       setAddresses([...addresses, address]);
     }
     setEditingIndex(null);
+    setModalOpen(false);
   };
 
   return (
@@ -57,20 +64,22 @@ export default function AddressPage() {
         <p className="mt-4 text-gray-500">Loading...</p>
       ) : error ? (
         <p className="mt-4 text-red-500">{error}</p>
+      ) : addresses.length === 0 ? (
+        <p className="mt-4 text-gray-500">No addresses found. Add one below!</p>
       ) : (
-        <div className="grid grid-cols-2 h-full gap-4 mt-6">
+        <div className="grid grid-cols-2 gap-4 mt-6">
           {addresses.map((address, index) => (
-            <div key={index} className="border rounded-2xl p-5 flex justify-between gap-2">
+            <div key={address.id || index} className="border rounded-2xl p-5 flex justify-between gap-2">
               <div>
                 <p className="text-slate-500 text-sm">City</p>
-                <h2 className="text-[#016A70] font-medium">{address.regency?.name}</h2>
+                <h2 className="text-[#016A70] font-medium">{address.regency?.name || "N/A"}</h2>
                 <div className="mt-2">
                   <p className="text-slate-500 text-sm">District</p>
-                  <h2 className="text-[#016A70] font-medium">{address.district?.name}</h2>
+                  <h2 className="text-[#016A70] font-medium">{address.district?.name || "N/A"}</h2>
                 </div>
                 <div className="mt-2">
                   <p className="text-slate-500 text-sm">Street</p>
-                  <h2 className="text-[#016A70] font-medium">{address.street}</h2>
+                  <h2 className="text-[#016A70] font-medium">{address.street || "N/A"}</h2>
                 </div>
               </div>
               <div>
