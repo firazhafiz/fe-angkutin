@@ -12,25 +12,62 @@ interface AddressModalProps {
 }
 
 export interface Address {
-  city: string;
-  district: string;
+  id?: number;
+  user_id?: number;
   street: string;
+  regency?: {
+    id: number;
+    name: string;
+  };
+  district?: {
+    id: number;
+    name: string;
+    regency_id: number;
+  };
 }
 
 export default function AddressModal({ isOpen, onClose, onSave, initialData }: AddressModalProps) {
   const [formData, setFormData] = useState<Address>({
-    city: "",
-    district: "",
     street: "",
+    regency: undefined,
+    district: undefined,
   });
 
   useEffect(() => {
-    if (initialData) setFormData(initialData);
-    else setFormData({ city: "", district: "", street: "" });
+    if (initialData) {
+      setFormData(initialData);
+    } else {
+      setFormData({
+        street: "",
+        regency: undefined,
+        district: undefined,
+      });
+    }
   }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "regency") {
+      setFormData((prev) => ({
+        ...prev,
+        regency: {
+          id: 0, // You might want to get this from a dropdown or API
+          name: value,
+        },
+      }));
+    } else if (name === "district") {
+      setFormData((prev) => ({
+        ...prev,
+        district: {
+          id: 0, // You might want to get this from a dropdown or API
+          name: value,
+          regency_id: prev.regency?.id || 0,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = () => {
@@ -45,8 +82,8 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
       <div className="bg-white rounded-2xl p-6 w-[650px] shadow-lg">
         <h2 className="text-lg font-semibold text-[#016A70] mb-4">{initialData ? "Edit Address" : "Add Address"}</h2>
         <div className="space-y-3">
-          <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
-          <input type="text" name="district" placeholder="District" value={formData.district} onChange={handleChange} className="w-full border p-2 rounded-lg  text-slate-500 mt-2" />
+          <input type="text" name="regency" placeholder="City" value={formData.regency?.name || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
+          <input type="text" name="district" placeholder="District" value={formData.district?.name || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
           <input type="text" name="street" placeholder="Street" value={formData.street} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
         </div>
         <div className="mt-5 flex justify-end gap-3">

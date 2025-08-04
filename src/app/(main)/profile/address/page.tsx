@@ -63,10 +63,10 @@ export default function AddressPage() {
             <div key={index} className="border rounded-2xl p-5 flex justify-between gap-2">
               <div>
                 <p className="text-slate-500 text-sm">City</p>
-                <h2 className="text-[#016A70] font-medium">{address.city}</h2>
+                <h2 className="text-[#016A70] font-medium">{address.regency?.name}</h2>
                 <div className="mt-2">
                   <p className="text-slate-500 text-sm">District</p>
-                  <h2 className="text-[#016A70] font-medium">{address.district}</h2>
+                  <h2 className="text-[#016A70] font-medium">{address.district?.name}</h2>
                 </div>
                 <div className="mt-2">
                   <p className="text-slate-500 text-sm">Street</p>
