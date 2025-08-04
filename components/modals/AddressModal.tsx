@@ -176,7 +176,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
 
       const url = initialData?.id ? `https://angkutin.vercel.app/v1/address/${initialData.id}` : "https://angkutin.vercel.app/v1/address";
       const method = initialData?.id ? "PUT" : "POST";
-
+      console.log(formData.regency_id, formData.district_id, formData.street);
       const res = await fetch(url, {
         method,
         headers: {
