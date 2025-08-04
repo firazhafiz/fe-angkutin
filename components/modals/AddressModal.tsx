@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 export interface Address {
   id?: number;
   user_id?: number;
-  city_id?: number;
+  regency_id?: number;
   district_id?: number;
   street: string;
   regency?: {
@@ -19,6 +19,17 @@ export interface Address {
   };
 }
 
+interface Regency {
+  id: number;
+  name: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+  regency_id: number;
+}
+
 interface AddressModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,53 +41,105 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   const [formData, setFormData] = useState<Address>({
     street: "",
     regency: undefined,
-    district: undefined,
+    district_id: undefined,
   });
+  const [regencies, setRegencies] = useState<Regency[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [loadingRegencies, setLoadingRegencies] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Fetch regencies when modal opens
+      const fetchRegencies = async () => {
+        setLoadingRegencies(true);
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) throw new Error("No authentication token found");
+
+          const res = await fetch("https://angkutin.vercel.app/v1/regency", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error("Failed to fetch regencies");
+          const result = await res.json();
+          if (Array.isArray(result.data)) {
+            setRegencies(result.data);
+          } else {
+            throw new Error("Invalid regency data format");
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to load regencies");
+        } finally {
+          setLoadingRegencies(false);
+        }
+      };
+      fetchRegencies();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (formData.regency_id) {
+      // Fetch districts when regency is selected
+      const fetchDistricts = async () => {
+        setLoadingDistricts(true);
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) throw new Error("No authentication token found");
+
+          const res = await fetch("https://angkutin.vercel.app/v1/district", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error("Failed to fetch districts");
+          const result = await res.json();
+          if (Array.isArray(result.data)) {
+            setDistricts(result.data.filter((d: District) => d.regency_id === formData.regency_id));
+          } else {
+            throw new Error("Invalid district data format");
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to load districts");
+        } finally {
+          setLoadingDistricts(false);
+        }
+      };
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+      setFormData((prev) => ({ ...prev, district_id: undefined }));
+    }
+  }, [formData.regency_id]);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         ...initialData,
         street: initialData.street || "",
-        regency: initialData.regency || undefined,
-        district: initialData.district || undefined,
+        regency_id: initialData.regency_id || undefined,
+        district_id: initialData.district_id || undefined,
       });
     } else {
       setFormData({
         street: "",
-        regency: undefined,
-        district: undefined,
+        regency_id: undefined,
+        district_id: undefined,
       });
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => {
-      if (name === "regency") {
-        return {
-          ...prev,
-          regency: value ? { id: prev.regency?.id || 0, name: value } : undefined,
-        };
-      }
-      if (name === "district") {
-        return {
-          ...prev,
-          district: value
-            ? {
-                id: prev.district?.id || 0,
-                name: value,
-                regency_id: prev.regency?.id || 0,
-              }
-            : undefined,
-        };
-      }
-      return { ...prev, [name]: value };
-    });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "regency_id" || name === "district_id" ? (value ? Number(value) : undefined) : value,
+    }));
   };
 
   const handleSubmit = () => {
+    if (!formData.regency_id || !formData.district_id || !formData.street) {
+      setError("Please fill in all required fields");
+      return;
+    }
     onSave(formData);
     onClose();
   };
@@ -87,9 +150,24 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
     <div className="fixed inset-0 bg-black/30 bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-[650px] shadow-lg">
         <h2 className="text-lg font-semibold text-[#016A70] mb-4">{initialData ? "Edit Address" : "Add Address"}</h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <div className="space-y-3">
-          <input type="text" name="regency" placeholder="City" value={formData.regency?.name || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
-          <input type="text" name="district" placeholder="District" value={formData.district?.name || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
+          <select name="regency_id" value={formData.regency_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingRegencies}>
+            <option value="">Select City</option>
+            {regencies.map((regency) => (
+              <option key={regency.id} value={regency.id}>
+                {regency.name}
+              </option>
+            ))}
+          </select>
+          <select name="district_id" value={formData.district_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingDistricts || !formData.regency_id}>
+            <option value="">Select District</option>
+            {districts.map((district) => (
+              <option key={district.id} value={district.id}>
+                {district.name}
+              </option>
+            ))}
+          </select>
           <input type="text" name="street" placeholder="Street" value={formData.street} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
         </div>
         <div className="mt-5 flex justify-end gap-3">
