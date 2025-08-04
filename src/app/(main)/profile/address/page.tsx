@@ -136,8 +136,12 @@ export default function AddressPage() {
 
       const completeAddress: Address = {
         ...savedAddress,
-        regency: regencies.find((r: any) => r.id === savedAddress.regency_id),
-        district: districts.find((d: any) => d.id === savedAddress.district_id),
+        regency: regencies.find(
+          (r: { id: number; name: string }) => r.id === savedAddress.regency_id
+        ),
+        district: districts.find(
+          (d: { id: number; name: string }) => d.id === savedAddress.district_id
+        ),
       };
 
       // Update local state with complete address
