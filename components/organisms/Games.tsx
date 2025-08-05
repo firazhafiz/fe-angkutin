@@ -18,7 +18,7 @@ export default function Games() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch("http://localhost:4000/v1/event");
+        const res = await fetch("https://angkutin.vercel.app/v1/event");
         const data = await res.json();
         setEventData(data.data[0]);
       } catch (error) {
@@ -37,9 +37,19 @@ export default function Games() {
         {/* Left Side - Poster Image */}
         <div className="w-[400px] h-auto">
           {eventData?.banner ? (
-            <Image src={eventData.banner} alt={eventData.title || "Event Banner"} width={1080} height={1350} className="w-full h-auto rounded-lg shadow-xl" priority quality={100} />
+            <Image
+              src={eventData.banner}
+              alt={eventData.title || "Event Banner"}
+              width={1080}
+              height={1350}
+              className="w-full h-auto rounded-lg shadow-xl"
+              priority
+              quality={100}
+            />
           ) : (
-            <div className="w-full h-[500px] bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 italic">Banner not available</div>
+            <div className="w-full h-[500px] bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 italic">
+              Banner not available
+            </div>
           )}
 
           {/* <Image src={eventData!.banner} alt={eventData.title} width={1080} height={1350} className="w-full h-auto rounded-lg shadow-xl" priority quality={100} /> */}
@@ -48,9 +58,13 @@ export default function Games() {
         {/* Right Side - Content */}
         <div className="flex flex-col">
           <div className="space-y-6">
-            <h2 className="text-3xl lg:text-4xl font-bold text-tosca leading-tight">{eventData.title}</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-tosca leading-tight">
+              {eventData.title}
+            </h2>
 
-            <p className="text-md max-w-md text-gray-600 leading-relaxed">{eventData.description}</p>
+            <p className="text-md max-w-md text-gray-600 leading-relaxed">
+              {eventData.description}
+            </p>
 
             <div className="text-lg text-gray-500 font-medium">
               {new Date(eventData.start_date).toLocaleDateString("id-ID", {
