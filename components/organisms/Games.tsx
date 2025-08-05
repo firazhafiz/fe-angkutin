@@ -1,35 +1,25 @@
-"use client";
 import Image from "next/image";
 import CheckLeaderboard from "../atoms/CheckLeaderboard";
-import { useEffect, useState } from "react";
+import { fetchEvent, EventType } from "../../lib/fetchEvent";
 
-type EventType = {
-  id: number;
-  title: string;
-  banner: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-};
+interface GamesProps {
+  initialEventData?: EventType | null;
+}
 
-export default function Games() {
-  const [eventData, setEventData] = useState<EventType>();
+export default async function Games({ initialEventData }: GamesProps) {
+  // Fetch event data on server-side
+  const eventData = initialEventData || (await fetchEvent());
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const res = await fetch("https://angkutin.vercel.app/v1/event");
-        const data = await res.json();
-        setEventData(data.data[0]);
-      } catch (error) {
-        console.error("Failed to fetch event:", error);
-      }
-    };
-
-    fetchEvent();
-  }, []);
-
-  if (!eventData) return <div className="text-center">Loading...</div>;
+  if (!eventData) {
+    return (
+      <section className="w-full flex justify-center">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#016A70] mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading event data...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full flex justify-center">
@@ -51,8 +41,6 @@ export default function Games() {
               Banner not available
             </div>
           )}
-
-          {/* <Image src={eventData!.banner} alt={eventData.title} width={1080} height={1350} className="w-full h-auto rounded-lg shadow-xl" priority quality={100} /> */}
         </div>
 
         {/* Right Side - Content */}
