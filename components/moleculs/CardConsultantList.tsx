@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import CardConsultant from "../atoms/CardConsultant";
 import { useConsultant } from "../../contexts/ConsultantContext";
 
 export default function CardConsultantList() {
