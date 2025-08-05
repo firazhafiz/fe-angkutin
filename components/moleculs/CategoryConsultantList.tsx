@@ -48,7 +48,7 @@ export default function CategoryConsultantList() {
       {categories.map((category, index) => (
         <div key={category.id} onClick={() => handleCategoryClick(index)} className="cursor-pointer">
           <CategoryConsultant
-            image={category.image || "/images/default-category.png"}
+            image={category.thumbnail || "/images/default-category.png"}
             name={category.name}
             consultantCount={category.consultantCount || 0}
             isHovered={hoveredCategory === index}

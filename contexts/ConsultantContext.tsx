@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 export interface ConsultantCategory {
   id: number;
   name: string;
-  image?: string;
+  thumbnail?: string;
   consultantCount?: number;
 }
 
@@ -83,7 +83,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       }
 
       // Try using the categories endpoint without consultant prefix
-      const res = await fetch("https://angkutin.vercel.app/v1/categories", {
+      const res = await fetch("https://angkutin.vercel.app/v1/consultant/categories", {
         headers,
       });
 
@@ -94,6 +94,8 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       }
 
       const result = await res.json();
+
+      console.log(result.data);
 
       if (Array.isArray(result.data)) {
         setCategories(result.data);
@@ -122,7 +124,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       }
 
       // Using a consistent endpoint approach
-      const res = await fetch(`https://angkutin.vercel.app/v1/consultants?category_id=${categoryId}`, {
+      const res = await fetch(`https://angkutin.vercel.app/v1/consultant/category/${categoryId}`, {
         headers,
       });
 
@@ -132,9 +134,10 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       }
 
       const result = await res.json();
+      console.log(result);
 
-      if (Array.isArray(result.data)) {
-        setConsultants(result.data);
+      if (Array.isArray(result.data.users)) {
+        setConsultants(result.data.users);
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -154,14 +157,14 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         throw new Error("No authentication token found");
       }
 
-      const res = await fetch("https://angkutin.vercel.app/v1/consultations", {
+      const res = await fetch("https://angkutin.vercel.app/v1/consultation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          consultan_id: consultantId,
+          consultantId: consultantId,
         }),
       });
 
