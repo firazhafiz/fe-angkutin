@@ -191,55 +191,20 @@ export default function AddressModal({
       setError("Please fill in all required fields");
       return;
     }
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No authentication token found");
 
-      const url = initialData?.id
-        ? `https://angkutin.vercel.app/v1/address/${initialData.id}`
-        : "https://angkutin.vercel.app/v1/address";
-      const method = initialData?.id ? "PUT" : "POST";
+    // Prepare the address data and pass it to parent component
+    const addressData: Address = {
+      id: initialData?.id,
+      regency_id: formData.regency_id,
+      district_id: formData.district_id,
+      street: formData.street,
+      regency: regencies.find((r) => r.id === formData.regency_id),
+      district: districts.find((d) => d.id === formData.district_id),
+    };
 
-      fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          regency_id: formData.regency_id,
-          district_id: formData.district_id,
-          street: formData.street,
-        }),
-      })
-        .then((res) => {
-          if (!res.ok)
-            throw new Error(
-              `Failed to ${initialData?.id ? "update" : "create"} address: ${
-                res.statusText
-              }`
-            );
-          return res.json();
-        })
-        .then((result) => {
-          onSave({
-            id: result.data.id,
-            regency_id: formData.regency_id,
-            district_id: formData.district_id,
-            street: formData.street,
-            regency: regencies.find((r) => r.id === formData.regency_id),
-            district: districts.find((d) => d.id === formData.district_id),
-          });
-          onClose();
-        })
-        .catch((err) => {
-          setError(
-            err instanceof Error ? err.message : "Failed to save address"
-          );
-        });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save address");
-    }
+    // Call parent's onSave function
+    onSave(addressData);
+    onClose();
   };
 
   if (!isOpen) return null;
