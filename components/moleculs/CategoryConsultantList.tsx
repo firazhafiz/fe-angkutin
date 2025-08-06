@@ -1,15 +1,30 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CategoryConsultant from "../atoms/CategoryConsultant";
 import { useConsultant } from "../../contexts/ConsultantContext";
 
 export default function CategoryConsultantList() {
   const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
-  const { selectedCategoryIndex, setSelectedCategoryIndex, categories, loading, error } = useConsultant();
+  const { selectedCategoryIndex, handleSelectCategory, categories, loading, error } = useConsultant();
 
-  const handleCategoryClick = (index: number) => {
-    setSelectedCategoryIndex(index);
-  };
+  // Always call useMemo at the top level to maintain consistent hook order
+  const categoryList = useMemo(() => {
+    if (categories.length === 0) return null;
+
+    return categories.map((category, index) => (
+      <div key={category.id} onClick={() => handleSelectCategory(index)} className="cursor-pointer">
+        <CategoryConsultant
+          image={category.thumbnail || "/images/default-category.png"}
+          name={category.name}
+          consultantCount={category.consultantCount || 0}
+          isHovered={hoveredCategory === index}
+          isSelected={selectedCategoryIndex === index}
+          onMouseEnter={() => setHoveredCategory(index)}
+          onMouseLeave={() => setHoveredCategory(null)}
+        />
+      </div>
+    ));
+  }, [categories, selectedCategoryIndex, handleSelectCategory, hoveredCategory]);
 
   if (loading) {
     return (
@@ -43,21 +58,5 @@ export default function CategoryConsultantList() {
     );
   }
 
-  return (
-    <div className="mt-8 flex flex-col gap-4">
-      {categories.map((category, index) => (
-        <div key={category.id} onClick={() => handleCategoryClick(index)} className="cursor-pointer">
-          <CategoryConsultant
-            image={category.thumbnail || "/images/default-category.png"}
-            name={category.name}
-            consultantCount={category.consultantCount || 0}
-            isHovered={hoveredCategory === index}
-            isSelected={selectedCategoryIndex === index}
-            onMouseEnter={() => setHoveredCategory(index)}
-            onMouseLeave={() => setHoveredCategory(null)}
-          />
-        </div>
-      ))}
-    </div>
-  );
+  return <div className="mt-8 flex flex-col gap-4">{categoryList}</div>;
 }
