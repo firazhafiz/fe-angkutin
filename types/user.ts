@@ -10,8 +10,18 @@ enum Role {
 export interface Address {
   id: number;
   userId: number;
-  address: string;
-  // Tambahkan field lain dari model Address jika ada
+  street: string;
+  regency_id?: number;
+  district_id?: number;
+  regency?: {
+    id: number;
+    name: string;
+  };
+  district?: {
+    id: number;
+    name: string;
+    regency_id: number;
+  };
 }
 
 // Interface untuk Consultation

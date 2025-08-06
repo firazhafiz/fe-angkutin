@@ -5,14 +5,46 @@ interface ApiResponse {
   message?: string;
 }
 
+// Request deduplication
+const pendingRequests = new Map<string, Promise<Address[]>>();
+
 export async function fetchAddresses(token: string): Promise<Address[]> {
+  // Check if there's already a pending request for this token
+  const requestKey = `addresses_${token}`;
+  const pendingRequest = pendingRequests.get(requestKey);
+
+  if (pendingRequest) {
+    return pendingRequest;
+  }
+
+  // Create new request
+  const requestPromise = fetchAddressesInternal(token);
+  pendingRequests.set(requestKey, requestPromise);
+
   try {
+    const result = await requestPromise;
+    return result;
+  } finally {
+    // Clean up pending request
+    pendingRequests.delete(requestKey);
+  }
+}
+
+async function fetchAddressesInternal(token: string): Promise<Address[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const res = await fetch("https://angkutin.vercel.app/v1/address", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
+      cache: "default",
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       const errorData = await res.text();
@@ -37,6 +69,9 @@ export async function fetchAddresses(token: string): Promise<Address[]> {
       throw new Error("Invalid data format received from server");
     }
   } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Request timeout - please try again");
+    }
     throw error;
   }
 }
