@@ -2,18 +2,19 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { fetchAddresses } from "./fetchAddress";
+import { Address } from "../components/modals/AddressModal";
 
 // Global cache untuk address data (shared across components)
 const globalAddressCache = new Map<
   string,
-  { data: any[]; timestamp: number }
+  { data: Address[]; timestamp: number }
 >();
 const CACHE_DURATION = 10 * 60 * 1000; // 10 menit untuk cache yang lebih lama
 
 // Preload addresses when component mounts
-let preloadPromise: Promise<any[]> | null = null;
+let preloadPromise: Promise<Address[]> | null = null;
 
-const preloadAddresses = (token: string): Promise<any[]> => {
+const preloadAddresses = (token: string): Promise<Address[]> => {
   if (!preloadPromise) {
     preloadPromise = fetchAddresses(token);
   }
@@ -33,7 +34,7 @@ export const invalidateAddressCache = (token?: string) => {
 
 // Custom hook untuk address fetching dengan advanced optimizations
 export const useAddressData = () => {
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -136,7 +137,7 @@ export const useAddressData = () => {
 
 // Hook untuk selected address management dengan localStorage
 export const useSelectedAddress = () => {
-  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [selectedAddressText, setSelectedAddressText] = useState<string>("");
 
   // Load selected address from localStorage on mount
@@ -144,7 +145,7 @@ export const useSelectedAddress = () => {
     const saved = localStorage.getItem("selectedAddress");
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved) as Address;
         setSelectedAddress(parsed);
         // Update text immediately
         const text = [
@@ -166,7 +167,7 @@ export const useSelectedAddress = () => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "selectedAddress" && e.newValue) {
         try {
-          const parsed = JSON.parse(e.newValue);
+          const parsed = JSON.parse(e.newValue) as Address;
           setSelectedAddress(parsed);
           const text = [
             parsed.street,
@@ -187,7 +188,7 @@ export const useSelectedAddress = () => {
   }, []);
 
   // Save selected address to localStorage
-  const updateSelectedAddress = useCallback((address: any) => {
+  const updateSelectedAddress = useCallback((address: Address) => {
     setSelectedAddress(address);
     localStorage.setItem("selectedAddress", JSON.stringify(address));
 
@@ -203,7 +204,7 @@ export const useSelectedAddress = () => {
     const saved = localStorage.getItem("selectedAddress");
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved) as Address;
         setSelectedAddress(parsed);
         const text = [
           parsed.street,
@@ -228,7 +229,7 @@ export const useSelectedAddress = () => {
 
   // Ensure we always have a selected address when addresses are available
   const ensureSelectedAddress = useCallback(
-    (availableAddresses: any[]) => {
+    (availableAddresses: Address[]) => {
       if (availableAddresses.length > 0) {
         if (!selectedAddress) {
           // If no address is selected, select the first one
