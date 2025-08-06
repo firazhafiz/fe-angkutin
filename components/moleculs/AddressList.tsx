@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAddressData, useSelectedAddress } from "../../lib/addressData";
 import Address from "../atoms/Address";
 import { User } from "../../types/user";
+import { Address as AddressType } from "../modals/AddressModal";
 
 interface AddressData {
   name: string;
@@ -28,7 +29,7 @@ export default function AddressList({ onEdit, user }: AddressListProps) {
   // Trigger fetch on mount only once
   useEffect(() => {
     fetchAddressData();
-  }, []);
+  }, [fetchAddressData]);
 
   // Ensure we always have a selected address when addresses change
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function AddressList({ onEdit, user }: AddressListProps) {
     ensureSelectedAddress,
   ]);
 
-  const handleSelect = (index: number, address: any) => {
+  const handleSelect = (index: number, address: AddressType) => {
     updateSelectedAddress(address);
   };
 
