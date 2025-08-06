@@ -87,6 +87,7 @@ export interface User {
   bio?: string | null; // Nullable berdasarkan model
   specialization?: string | null; // Nullable berdasarkan model
   role: Role; // Default ke "user"
+  description: string;
   addresses: Address[]; // Relasi ke Address
   created_at: string; // DateTime dikonversi ke string untuk TypeScript
   consultations: Consultation[]; // Relasi ke Consultation (UserConsultations)

@@ -78,7 +78,7 @@ export default function ProfileConsultant() {
         </div>
         <div>
           <h3 className="text-xl text-[#016A70] font-semibold">About</h3>
-          {/* <p className="max-w-4xl mt-4 text-slate-500 leading-relaxed">{consultant.}</p> */}
+          <p className="max-w-4xl mt-4 text-slate-500 leading-relaxed">{consultant.description}</p>
         </div>
       </div>
     </div>
