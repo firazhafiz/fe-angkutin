@@ -6,6 +6,7 @@ type Props = {
     confirmPassword: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  
 };
 
 export default function RegisterForm({ formData, onChange }: Props) {

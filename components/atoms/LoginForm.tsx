@@ -1,6 +1,5 @@
 "use client";
 import { ChangeEvent, FormEvent } from "react";
-
 interface LoginFormProps {
   formData: {
     email: string;
@@ -8,12 +7,12 @@ interface LoginFormProps {
   };
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: FormEvent) => void;
+  isLoading?: boolean; // tambahkan
 }
 
-export default function LoginForm({ formData, onChange, onSubmit }: LoginFormProps) {
+export default function LoginForm({ formData, onChange, onSubmit, isLoading }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="w-full space-y-4">
-      {/* Email Field */}
       <div>
         <label htmlFor="email" className="block text-md font-medium text-gray-700 mb-2">
           Email
@@ -29,8 +28,6 @@ export default function LoginForm({ formData, onChange, onSubmit }: LoginFormPro
           className="w-full px-3 py-2 border text-sm text-black-100 placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
         />
       </div>
-
-      {/* Password Field */}
       <div>
         <label htmlFor="password" className="block text-md font-medium text-gray-700 mb-2">
           Password
@@ -46,9 +43,17 @@ export default function LoginForm({ formData, onChange, onSubmit }: LoginFormPro
           className="w-full px-3 py-2 border text-sm text-black-100 placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
         />
       </div>
-
-      <button type="submit" className="w-full bg-tosca text-white font-semibold py-3 rounded-md hover:bg-tosca/90 transition-colors mt-6">
-        Login
+      <button
+        type="submit"
+        disabled={isLoading}
+        className={`w-full bg-tosca text-white font-semibold py-3 rounded-md transition-colors mt-6 flex items-center justify-center gap-2 ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-tosca/90"}`}>
+        {isLoading && (
+          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+          </svg>
+        )}
+        {isLoading ? "Logging in..." : "Login"}
       </button>
     </form>
   );
