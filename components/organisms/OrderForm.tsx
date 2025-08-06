@@ -1,5 +1,5 @@
 // components/organisms/OrderForm.tsx
-import OrderAddress from "../moleculs/OrderAddress";
+import OrderAddressClient from "../moleculs/OrderAddressClient";
 import BookingInformation from "../moleculs/BookingInformation";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -25,7 +25,7 @@ export default function OrderForm() {
             <div className="bg-gray-200 animate-pulse h-40 w-full rounded-lg"></div>
           }
         >
-          <OrderAddress /> {/* Hapus prop user */}
+          <OrderAddressClient /> {/* Hapus prop user */}
         </Suspense>
         <BookingInformation />
         <Link href="/order/id">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface UserData {
   name: string;
@@ -10,10 +10,20 @@ interface UserData {
 interface FormData {
   name: string;
   phone: string;
-  provinsi: string;
-  city: string;
-  streetAddress: string;
-  detailLainnya: string;
+  regency_id: number | undefined;
+  district_id: number | undefined;
+  street: string;
+}
+
+interface Regency {
+  id: number;
+  name: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+  regency_id: number;
 }
 
 interface NewAddressProps {
@@ -32,21 +42,168 @@ export default function NewAddress({
   const [formData, setFormData] = useState<FormData>({
     name: userData.name,
     phone: userData.phone,
-    provinsi: "",
-    city: "",
-    streetAddress: "",
-    detailLainnya: "",
+    regency_id: undefined,
+    district_id: undefined,
+    street: "",
   });
+  const [regencies, setRegencies] = useState<Regency[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [loadingRegencies, setLoadingRegencies] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const CACHE_KEY_REGENCIES = "regencies_cache";
+  const CACHE_KEY_DISTRICTS = "districts_cache";
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+  const isCacheValid = (cache: string | null) => {
+    if (!cache) return false;
+    const parsed = JSON.parse(cache);
+    return parsed.timestamp && Date.now() - parsed.timestamp < CACHE_DURATION;
+  };
+
+  // Load regencies on mount
+  useEffect(() => {
+    if (isOpen) {
+      const fetchRegencies = async () => {
+        const cachedRegencies = localStorage.getItem(CACHE_KEY_REGENCIES);
+        if (cachedRegencies && isCacheValid(cachedRegencies)) {
+          setRegencies(JSON.parse(cachedRegencies).data);
+          return;
+        }
+
+        setLoadingRegencies(true);
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) throw new Error("No authentication token found");
+
+          const res = await fetch("https://angkutin.vercel.app/v1/regency", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error("Failed to fetch regencies");
+          const result = await res.json();
+          if (Array.isArray(result.data)) {
+            setRegencies(result.data);
+            localStorage.setItem(
+              CACHE_KEY_REGENCIES,
+              JSON.stringify({ data: result.data, timestamp: Date.now() })
+            );
+          } else {
+            throw new Error("Invalid regency data format");
+          }
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "Failed to load regencies"
+          );
+        } finally {
+          setLoadingRegencies(false);
+        }
+      };
+      fetchRegencies();
+    }
+  }, [isOpen]);
+
+  // Load districts when regency changes
+  useEffect(() => {
+    if (formData.regency_id) {
+      const fetchDistricts = async () => {
+        const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
+        if (cachedDistricts && isCacheValid(cachedDistricts)) {
+          const allDistricts: District[] = JSON.parse(cachedDistricts).data;
+          setDistricts(
+            allDistricts.filter((d) => d.regency_id === formData.regency_id)
+          );
+          return;
+        }
+
+        setLoadingDistricts(true);
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) throw new Error("No authentication token found");
+
+          const res = await fetch("https://angkutin.vercel.app/v1/district", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error("Failed to fetch districts");
+          const result = await res.json();
+          if (Array.isArray(result.data)) {
+            const filteredDistricts = result.data.filter(
+              (d: District) => d.regency_id === formData.regency_id
+            );
+            setDistricts(filteredDistricts);
+            localStorage.setItem(
+              CACHE_KEY_DISTRICTS,
+              JSON.stringify({ data: result.data, timestamp: Date.now() })
+            );
+          } else {
+            throw new Error("Invalid district data format");
+          }
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "Failed to load districts"
+          );
+        } finally {
+          setLoadingDistricts(false);
+        }
+      };
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+      setFormData((prev) => ({ ...prev, district_id: undefined }));
+    }
+  }, [formData.regency_id]);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      [name]:
+        name === "regency_id" || name === "district_id"
+          ? value
+            ? Number(value)
+            : undefined
+          : value,
+      ...(name === "regency_id" && { district_id: undefined }), // Reset district_id when regency changes
     }));
   };
 
   const handleConfirm = () => {
-    onConfirm(formData);
+    if (!formData.regency_id || !formData.district_id || !formData.street) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    // Prepare the address data
+    const selectedRegency = regencies.find((r) => r.id === formData.regency_id);
+    const selectedDistrict = districts.find(
+      (d) => d.id === formData.district_id
+    );
+
+    const addressData: FormData = {
+      name: formData.name,
+      phone: formData.phone,
+      regency_id: formData.regency_id,
+      district_id: formData.district_id,
+      street: formData.street,
+    };
+
+    // Trigger global state update
+    window.dispatchEvent(new CustomEvent("addressChanged"));
+    localStorage.setItem("addresses_updated", Date.now().toString());
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: "addresses_updated",
+        newValue: Date.now().toString(),
+        oldValue: null,
+        storageArea: localStorage,
+      })
+    );
+
+    onConfirm(addressData);
     onClose();
   };
 
@@ -72,7 +229,9 @@ export default function NewAddress({
 
         {/* Form */}
         <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-4">
-          {/* First Row - Name and Phone */}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          {/* First Row - Name and Phone (Readonly) */}
           <div className="grid grid-cols-2 gap-4">
             <input
               type="text"
@@ -90,38 +249,44 @@ export default function NewAddress({
             />
           </div>
 
-          {/* Second Row - Provinsi and City */}
+          {/* Second Row - Regency and District */}
           <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              value={formData.provinsi}
-              onChange={(e) => handleInputChange("provinsi", e.target.value)}
+            <select
+              name="regency_id"
+              value={formData.regency_id || ""}
+              onChange={handleChange}
               className="w-full px-3 py-3 border text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
-              placeholder="Provinsi"
-            />
-            <input
-              type="text"
-              value={formData.city}
-              onChange={(e) => handleInputChange("city", e.target.value)}
+              disabled={loadingRegencies}
+            >
+              <option value="">Select Regency</option>
+              {regencies.map((regency) => (
+                <option key={regency.id} value={regency.id}>
+                  {regency.name}
+                </option>
+              ))}
+            </select>
+            <select
+              name="district_id"
+              value={formData.district_id || ""}
+              onChange={handleChange}
               className="w-full px-3 py-3 border text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
-              placeholder="City"
-            />
+              disabled={loadingDistricts || !formData.regency_id}
+            >
+              <option value="">Select District</option>
+              {districts.map((district) => (
+                <option key={district.id} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Third Row - Street Address */}
           <textarea
-            value={formData.streetAddress}
-            onChange={(e) => handleInputChange("streetAddress", e.target.value)}
-            placeholder="Nama Jalan, Gedung, Kecamatan, No Rumah"
-            rows={3}
-            className="w-full px-3 py-3 border text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent resize-none"
-          />
-
-          {/* Fourth Row - Detail Lainnya */}
-          <textarea
-            value={formData.detailLainnya}
-            onChange={(e) => handleInputChange("detailLainnya", e.target.value)}
-            placeholder="Detail Lainnya"
+            name="street"
+            value={formData.street}
+            onChange={handleChange}
+            placeholder="Street Address"
             rows={3}
             className="w-full px-3 py-3 border text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent resize-none"
           />

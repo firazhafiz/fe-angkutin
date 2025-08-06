@@ -1,9 +1,10 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { FiEdit } from "react-icons/fi";
 import AddressModal, { Address } from "../modals/AddressModal";
 import { useAddressManager } from "../../lib/addressHooks";
+import { invalidateAddressCache } from "../../lib/addressData";
 
 interface AddressManagerProps {
   initialAddresses?: Address[];
@@ -100,6 +101,37 @@ const AddressManager = memo(function AddressManager({
     closeModal,
     setError,
   } = useAddressManager(initialAddresses, initialError);
+
+  // Trigger events when addresses change
+  useEffect(() => {
+    if (addresses.length > 0) {
+      // Invalidate cache
+      invalidateAddressCache();
+
+      // Dispatch custom event
+      window.dispatchEvent(new CustomEvent("addressChanged"));
+
+      // Update localStorage flag
+      localStorage.setItem("addresses_updated", Date.now().toString());
+
+      // Trigger storage event for other tabs
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "addresses_updated",
+          newValue: Date.now().toString(),
+          oldValue: null,
+          storageArea: localStorage,
+        })
+      );
+    }
+  }, [addresses]);
+
+  // Trigger specific event when addresses are deleted
+  useEffect(() => {
+    // Dispatch address deleted event when addresses array changes
+    // This will be caught by OrderAddressClient and AddressList
+    window.dispatchEvent(new CustomEvent("addressDeleted"));
+  }, [addresses.length]);
 
   // Render loading state
   if (loading) {

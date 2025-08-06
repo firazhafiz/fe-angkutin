@@ -5,14 +5,15 @@ import AddressList from "../moleculs/AddressList";
 import NewAddress from "../moleculs/NewAddress";
 import EditAddress from "../moleculs/EditAddress";
 import { User, AddressData, Address } from "../../types/user";
+import { useSelectedAddress } from "../../lib/addressData";
 
+// Updated FormData interface to match EditAddress and NewAddress
 interface FormData {
   name: string;
   phone: string;
-  provinsi: string;
-  city: string;
-  streetAddress: string;
-  detailLainnya: string;
+  regency_id: number | undefined;
+  district_id: number | undefined;
+  street: string;
 }
 
 interface AddressModalProps {
@@ -36,6 +37,8 @@ export default function AddressModal({
   const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(
     null
   );
+  const { selectedAddress: contextSelectedAddress, updateSelectedAddress } =
+    useSelectedAddress();
 
   // Inisialisasi selectedAddress dari initialAddress jika ada
   useEffect(() => {
@@ -54,10 +57,11 @@ export default function AddressModal({
   };
 
   const handleNewAddressConfirm = (addressData: FormData) => {
+    // Convert FormData to AddressData format
     const newAddress: AddressData = {
       name: addressData.name,
       phone: addressData.phone,
-      address: `${addressData.streetAddress}, ${addressData.city}, ${addressData.provinsi}, ${addressData.detailLainnya}`,
+      address: addressData.street, // Use street directly as address
     };
     console.log("New address data:", newAddress);
     setCurrentModal("address-list");
@@ -65,10 +69,11 @@ export default function AddressModal({
   };
 
   const handleEditAddressConfirm = (addressData: FormData) => {
+    // Convert FormData to AddressData format
     const updatedAddress: AddressData = {
       name: addressData.name,
       phone: addressData.phone,
-      address: `${addressData.streetAddress}, ${addressData.city}, ${addressData.provinsi}, ${addressData.detailLainnya}`,
+      address: addressData.street, // Use street directly as address
     };
     console.log("Edit address data:", updatedAddress);
     setCurrentModal("address-list");
@@ -85,7 +90,21 @@ export default function AddressModal({
   };
 
   const handleConfirm = () => {
-    if (selectedAddress) {
+    // Use context selected address if available
+    if (contextSelectedAddress) {
+      const addressData: AddressData = {
+        name: user?.name || "",
+        phone: user?.phone || "",
+        address: [
+          contextSelectedAddress.street,
+          contextSelectedAddress.district?.name,
+          contextSelectedAddress.regency?.name,
+        ]
+          .filter(Boolean)
+          .join(", "),
+      };
+      onEdit(addressData);
+    } else if (selectedAddress) {
       onEdit(selectedAddress);
     }
     onClose();
@@ -135,7 +154,7 @@ export default function AddressModal({
           <h2 className="text-xl font-bold text-gray-800">My Address</h2>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
-          <AddressList onEdit={handleEditAddress} />
+          <AddressList onEdit={handleEditAddress} user={user} />
         </div>
         <div className="p-6 border-t border-gray-200 flex-shrink-0">
           <div className="flex justify-between items-center">
