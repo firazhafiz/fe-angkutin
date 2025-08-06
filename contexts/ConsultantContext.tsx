@@ -24,7 +24,7 @@ export interface Consultant {
 export interface Consultation {
   id: number;
   user_id: number;
-  consultan_id: number;
+  consultantId: number;
   status: "pending" | "accepted" | "rejected" | "completed";
   created_at: string;
   user?: Consultant;
@@ -34,6 +34,7 @@ export interface Consultation {
 interface ConsultantContextType {
   selectedCategoryIndex: number;
   setSelectedCategoryIndex: (index: number) => void;
+  handleSelectCategory: (index: number) => Promise<void>;
   categories: ConsultantCategory[];
   consultants: Consultant[];
   loading: boolean;
@@ -48,27 +49,19 @@ interface ConsultantProviderProps {
   children: ReactNode;
 }
 
+// ... (other imports remain the same)
 export function ConsultantProvider({ children }: ConsultantProviderProps) {
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
   const [categories, setCategories] = useState<ConsultantCategory[]>([]);
   const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetchedCategoryId, setLastFetchedCategoryId] = useState<number | null>(null);
 
   // Fetch categories on component mount
   useEffect(() => {
     fetchCategories();
   }, []);
-
-  // Fetch consultants when category changes
-  useEffect(() => {
-    if (categories.length > 0 && selectedCategoryIndex >= 0) {
-      const selectedCategory = categories[selectedCategoryIndex];
-      if (selectedCategory) {
-        fetchConsultantsByCategory(selectedCategory.id);
-      }
-    }
-  }, [selectedCategoryIndex, categories]);
 
   const fetchCategories = async () => {
     try {
@@ -82,23 +75,24 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      // Try using the categories endpoint without consultant prefix
-      const res = await fetch("https://angkutin.vercel.app/v1/consultant/categories", {
+      const res = await fetch("http://localhost:4000/v1/consultant/categories", {
         headers,
       });
 
       if (!res.ok) {
         const errorData = await res.text();
-        console.error("API Error Response:", errorData);
         throw new Error(`Failed to fetch categories: ${errorData}`);
       }
 
       const result = await res.json();
 
-      console.log(result.data);
-
       if (Array.isArray(result.data)) {
         setCategories(result.data);
+
+        // Fetch consultants for the first category
+        if (result.data.length > 0) {
+          await fetchConsultantsByCategory(result.data[0].id);
+        }
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -112,6 +106,11 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
   };
 
   const fetchConsultantsByCategory = async (categoryId: number) => {
+    // Skip fetching if the same category is selected
+    if (categoryId === lastFetchedCategoryId) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -123,8 +122,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      // Using a consistent endpoint approach
-      const res = await fetch(`https://angkutin.vercel.app/v1/consultant/category/${categoryId}`, {
+      const res = await fetch(`http://localhost:4000/v1/consultant/category/${categoryId}`, {
         headers,
       });
 
@@ -134,10 +132,10 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       }
 
       const result = await res.json();
-      console.log(result);
 
       if (Array.isArray(result.data.users)) {
         setConsultants(result.data.users);
+        setLastFetchedCategoryId(categoryId); // Update last fetched category
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -157,7 +155,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         throw new Error("No authentication token found");
       }
 
-      const res = await fetch("https://angkutin.vercel.app/v1/consultation", {
+      const res = await fetch("http://localhost:4000/v1/consultation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -183,18 +181,28 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
     }
   };
 
+  const handleSelectCategory = async (index: number) => {
+    setSelectedCategoryIndex(index);
+    const selected = categories[index];
+    if (selected) {
+      await fetchConsultantsByCategory(selected.id);
+    }
+  };
+
   return (
     <ConsultantContext.Provider
       value={{
         selectedCategoryIndex,
         setSelectedCategoryIndex,
+        handleSelectCategory,
         categories,
         consultants,
         loading,
         error,
         fetchConsultantsByCategory,
         createConsultation,
-      }}>
+      }}
+    >
       {children}
     </ConsultantContext.Provider>
   );
