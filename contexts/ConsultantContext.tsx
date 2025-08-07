@@ -75,7 +75,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const res = await fetch("http://localhost:4000/v1/consultant/categories", {
+      const res = await fetch("https://angkutin.vercel.app/v1/consultant/categories", {
         headers,
       });
 
@@ -122,7 +122,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const res = await fetch(`http://localhost:4000/v1/consultant/category/${categoryId}`, {
+      const res = await fetch(`https://angkutin.vercel.app/v1/consultant/category/${categoryId}`, {
         headers,
       });
 
@@ -155,7 +155,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         throw new Error("No authentication token found");
       }
 
-      const res = await fetch("http://localhost:4000/v1/consultation", {
+      const res = await fetch("https://angkutin.vercel.app/v1/consultation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -201,8 +201,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         error,
         fetchConsultantsByCategory,
         createConsultation,
-      }}
-    >
+      }}>
       {children}
     </ConsultantContext.Provider>
   );

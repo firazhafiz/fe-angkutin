@@ -27,9 +27,9 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
         {/* Sidebar */}
         <div className="w-1/4 h-fit bg-white rounded-2xl p-5">
           <div className="flex gap-4 items-center">
-            <div className="bg-[#F0F0F0] rounded-full w-fit p-2 cursor-pointer">
+            <Link href="/" className="bg-[#F0F0F0] rounded-full w-fit p-2 cursor-pointer">
               <Image src={backIcon} alt="back-icon" className="h-6 w-6" />
-            </div>
+            </Link>
             <h2 className="text-[#016A70] font-semibold text-xl">Profile</h2>
           </div>
 

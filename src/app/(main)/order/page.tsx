@@ -22,11 +22,7 @@ async function preloadAddressData() {
   }
 }
 
-export default async function OrderPage({
-  params,
-}: {
-  params: Promise<{ userId: string }>;
-}) {
+export default async function OrderPage({ params }: { params: Promise<{ userId: string }> }) {
   const resolvedParams = await params;
 
   // Preload address data
