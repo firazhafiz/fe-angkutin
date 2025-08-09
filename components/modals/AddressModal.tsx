@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/context/AuthContext";
 import { useState, useEffect } from "react";
 
 export interface Address {
@@ -37,17 +38,13 @@ interface AddressModalProps {
   initialData?: Address;
 }
 
-export default function AddressModal({
-  isOpen,
-  onClose,
-  onSave,
-  initialData,
-}: AddressModalProps) {
+export default function AddressModal({ isOpen, onClose, onSave, initialData }: AddressModalProps) {
   const [formData, setFormData] = useState<Address>({
     street: "",
     regency_id: undefined,
     district_id: undefined,
   });
+  const { token } = useAuth();
   const [regencies, setRegencies] = useState<Regency[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [loadingRegencies, setLoadingRegencies] = useState(false);
@@ -75,7 +72,6 @@ export default function AddressModal({
 
         setLoadingRegencies(true);
         try {
-          const token = localStorage.getItem("token");
           if (!token) throw new Error("No authentication token found");
 
           const res = await fetch("https://angkutin.vercel.app/v1/regency", {
@@ -85,17 +81,12 @@ export default function AddressModal({
           const result = await res.json();
           if (Array.isArray(result.data)) {
             setRegencies(result.data);
-            localStorage.setItem(
-              CACHE_KEY_REGENCIES,
-              JSON.stringify({ data: result.data, timestamp: Date.now() })
-            );
+            localStorage.setItem(CACHE_KEY_REGENCIES, JSON.stringify({ data: result.data, timestamp: Date.now() }));
           } else {
             throw new Error("Invalid regency data format");
           }
         } catch (err) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load regencies"
-          );
+          setError(err instanceof Error ? err.message : "Failed to load regencies");
         } finally {
           setLoadingRegencies(false);
         }
@@ -110,15 +101,12 @@ export default function AddressModal({
         const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
         if (cachedDistricts && isCacheValid(cachedDistricts)) {
           const allDistricts: District[] = JSON.parse(cachedDistricts).data;
-          setDistricts(
-            allDistricts.filter((d) => d.regency_id === formData.regency_id)
-          );
+          setDistricts(allDistricts.filter((d) => d.regency_id === formData.regency_id));
           return;
         }
 
         setLoadingDistricts(true);
         try {
-          const token = localStorage.getItem("token");
           if (!token) throw new Error("No authentication token found");
 
           const res = await fetch("https://angkutin.vercel.app/v1/district", {
@@ -127,21 +115,14 @@ export default function AddressModal({
           if (!res.ok) throw new Error("Failed to fetch districts");
           const result = await res.json();
           if (Array.isArray(result.data)) {
-            const filteredDistricts = result.data.filter(
-              (d: District) => d.regency_id === formData.regency_id
-            );
+            const filteredDistricts = result.data.filter((d: District) => d.regency_id === formData.regency_id);
             setDistricts(filteredDistricts);
-            localStorage.setItem(
-              CACHE_KEY_DISTRICTS,
-              JSON.stringify({ data: result.data, timestamp: Date.now() })
-            );
+            localStorage.setItem(CACHE_KEY_DISTRICTS, JSON.stringify({ data: result.data, timestamp: Date.now() }));
           } else {
             throw new Error("Invalid district data format");
           }
         } catch (err) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load districts"
-          );
+          setError(err instanceof Error ? err.message : "Failed to load districts");
         } finally {
           setLoadingDistricts(false);
         }
@@ -170,18 +151,11 @@ export default function AddressModal({
     }
   }, [initialData]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "regency_id" || name === "district_id"
-          ? value
-            ? Number(value)
-            : undefined
-          : value,
+      [name]: name === "regency_id" || name === "district_id" ? (value ? Number(value) : undefined) : value,
       ...(name === "regency_id" && { district_id: undefined }), // Reset district_id when regency changes
     }));
   };
@@ -212,18 +186,10 @@ export default function AddressModal({
   return (
     <div className="fixed inset-0 bg-black/30 bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-[650px] shadow-lg">
-        <h2 className="text-lg font-semibold text-[#016A70] mb-4">
-          {initialData ? "Edit Address" : "Add Address"}
-        </h2>
+        <h2 className="text-lg font-semibold text-[#016A70] mb-4">{initialData ? "Edit Address" : "Add Address"}</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <div className="space-y-3">
-          <select
-            name="regency_id"
-            value={formData.regency_id || ""}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-lg text-slate-500 mt-2"
-            disabled={loadingRegencies}
-          >
+          <select name="regency_id" value={formData.regency_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingRegencies}>
             <option value="">Select City</option>
             {regencies.map((regency) => (
               <option key={regency.id} value={regency.id}>
@@ -231,13 +197,7 @@ export default function AddressModal({
               </option>
             ))}
           </select>
-          <select
-            name="district_id"
-            value={formData.district_id || ""}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-lg text-slate-500 mt-2"
-            disabled={loadingDistricts || !formData.regency_id}
-          >
+          <select name="district_id" value={formData.district_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingDistricts || !formData.regency_id}>
             <option value="">Select District</option>
             {districts.map((district) => (
               <option key={district.id} value={district.id}>
@@ -245,23 +205,13 @@ export default function AddressModal({
               </option>
             ))}
           </select>
-          <input
-            type="text"
-            name="street"
-            placeholder="Street"
-            value={formData.street}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-lg text-slate-500 mt-2"
-          />
+          <input type="text" name="street" placeholder="Street" value={formData.street} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
         </div>
         <div className="mt-5 flex justify-end gap-3">
           <button onClick={onClose} className="text-slate-500 cursor-pointer">
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            className="bg-[#016A70] text-white px-4 py-2 rounded cursor-pointer"
-          >
+          <button onClick={handleSubmit} className="bg-[#016A70] text-white px-4 py-2 rounded cursor-pointer">
             Save
           </button>
         </div>

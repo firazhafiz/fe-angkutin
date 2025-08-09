@@ -7,12 +7,14 @@ import backIcon from "../../public/icons/back.png";
 import signOutIcon from "../../public/icons/signout.png";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 
 interface SidebarLayoutProps {
   children: React.ReactNode;
 }
 
 export default function SidebarLayout({ children }: SidebarLayoutProps) {
+  const { logout } = useAuth();
   const pathname = usePathname();
 
   const navItems = [
@@ -21,8 +23,12 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
     { name: "Orders", href: "/profile/orders" },
   ];
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
-    <main className="w-full h-full relative min-h-screen bg-gray-100 overflow-hidden">
+    <main className="w-full min-h-screen relative  bg-gray-100 overflow-hidden">
       <div className="flex gap-2.5 w-full mt-40 px-40 h-4/5">
         {/* Sidebar */}
         <div className="w-1/4 h-fit bg-white rounded-2xl p-5">
@@ -43,9 +49,9 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 
           <div className="mt-4 flex gap-2">
             <Image src={signOutIcon} alt="sign out icon" className="h-6 w-6" />
-            <a href="" className="text-[#D27267]">
+            <Link href="/" onClick={handleLogout} className="text-[#D27267]">
               Sign Out
-            </a>
+            </Link>
           </div>
         </div>
 

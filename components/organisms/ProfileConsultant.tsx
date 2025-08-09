@@ -7,8 +7,10 @@ import { FiPhone } from "react-icons/fi";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "../../types/user";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function ProfileConsultant() {
+  const { user, token } = useAuth();
   const [consultant, setConsultant] = useState<User>();
   const router = useRouter();
   const params = useParams();
@@ -17,10 +19,9 @@ export default function ProfileConsultant() {
   // Ambil data consultant pertama sebagai dummy
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const getConsultant = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/v1/consultant/${consultantId}`, {
+        const res = await fetch(`https://angkutin.vercel.app/v1/consultant/${consultantId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

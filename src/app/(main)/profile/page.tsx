@@ -1,29 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import SidebarLayout from "../../../../components/layouts/SidebarLayout";
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  avatar: string;
-  bio: string | null;
-  categoryId: number | null;
-  role: "user" | "admin" | "driver";
-  specialization: string | null;
-  created_at: string;
-}
+import { User } from "../../../../types/user";
+import { useAuth } from "@/app/context/AuthContext";
 
 function SuccessModal({ open, onClose, message }: { open: boolean; onClose: () => void; message: string }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg p-6 shadow-lg min-w-[300px] text-center">
         <h3 className="text-lg font-semibold text-green-600 mb-2">Sukses!</h3>
-        <p className="mb-4">{message}</p>
+        <p className="mb-4 text-slate-500">{message}</p>
         <button className="bg-[#016A70] text-white px-4 py-2 rounded-lg" onClick={onClose}>
           Tutup
         </button>
@@ -33,106 +22,85 @@ function SuccessModal({ open, onClose, message }: { open: boolean; onClose: () =
 }
 
 export default function ProfilePage() {
-  const [userData, setUserData] = useState<User | null>(null);
-  const [token, setToken] = useState("");
+  const { user, token, setUser } = useAuth(); // ambil user & token langsung dari context
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
-    if (storedToken) setToken(storedToken);
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      setUserData(parsed);
-    }
-  }, []);
-
+  if (!user) return null; 
   const handleFieldChange = (key: keyof User, value: string) => {
-    setUserData((prev) => (prev ? { ...prev, [key]: value } : prev));
+    setUser((prev) => (prev ? { ...prev, [key]: value } : prev));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setAvatarFile(file);
     const preview = URL.createObjectURL(file);
-    setUserData((prev) => (prev ? { ...prev, avatar: preview } : prev));
-    setImageError(false); // Reset error state when new image is selected
+    setUser((prev) => (prev ? { ...prev, avatar: preview } : prev));
+    setImageError(false);
   };
 
   const handleAvatarUpload = async () => {
-    if (!userData || !avatarFile) return;
+    if (!avatarFile) return;
     const formData = new FormData();
     formData.append("file", avatarFile);
 
+    setLoading(true);
     try {
-      const res = await fetch(`https://angkutin.vercel.app/v1/user/${userData.id}/update-avatar`, {
+      const res = await fetch(`https://angkutin.vercel.app/v1/user/${user.id}/update-avatar`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
-      }
+      if (!res.ok) throw new Error(await res.text());
 
       const updated = await res.json();
-      localStorage.setItem("user", JSON.stringify(updated));
-      setUserData(updated);
+      setUser(updated);
       setAvatarFile(null);
       setImageError(false);
       setSuccessMessage("Avatar berhasil diperbarui!");
       setShowSuccessModal(true);
+      setLoading(false);
     } catch (error) {
       console.error("Error uploading avatar:", error);
+      setLoading(false);
     }
   };
 
   const handleUpdate = async () => {
-    if (!userData) return;
-
+    setLoading(true);
     try {
-      if (avatarFile) {
-        await handleAvatarUpload();
-      }
+      if (avatarFile) await handleAvatarUpload();
 
-      const res = await fetch(`https://angkutin.vercel.app/v1/user/${userData.id}`, {
+      const res = await fetch(`https://angkutin.vercel.app/v1/user/${user.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: userData.name,
-          email: userData.email,
-          phone: userData.phone,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
-      }
+      if (!res.ok) throw new Error(await res.text());
 
       const updated = await res.json();
-      localStorage.setItem("user", JSON.stringify(updated.data));
-      setUserData(updated.data);
+      setUser(updated.data);
       setSuccessMessage("Profil berhasil diperbarui!");
       setShowSuccessModal(true);
+      setLoading(false);
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
   };
-
-  if (!userData) return null;
 
   return (
     <>
@@ -142,16 +110,8 @@ export default function ProfilePage() {
         <div className="flex h-full gap-4 mt-6">
           {/* Sidebar kiri */}
           <div className="w-2/5 h-full border rounded-2xl p-5 flex flex-col justify-center items-center">
-            {userData.avatar && !imageError ? (
-              <Image
-                src={userData.avatar}
-                alt="User Avatar"
-                width={150}
-                height={150}
-                className="h-[150px] w-[150px] rounded-full object-cover"
-                onError={() => setImageError(true)}
-                unoptimized // Add this to bypass Next.js image optimization for external URLs
-              />
+            {user.avatar && !imageError ? (
+              <Image src={user.avatar} alt="User Avatar" width={150} height={150} className="h-[150px] w-[150px] rounded-full object-cover" onError={() => setImageError(true)} unoptimized />
             ) : (
               <div className="h-[150px] w-[150px] rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">{imageError ? "Error Loading" : "No Avatar"}</div>
             )}
@@ -161,30 +121,37 @@ export default function ProfilePage() {
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
             <div className="mt-3 text-center">
-              <h2 className="font-semibold text-[#016A70]">{userData.name}</h2>
-              <h3 className="text-slate-500 text-sm">{userData.phone || "Belum ada nomor telepon"}</h3>
+              <h2 className="font-semibold text-[#016A70]">{user.name}</h2>
+              <h3 className="text-slate-500 text-sm">{user.phone || "Belum ada nomor telepon"}</h3>
             </div>
           </div>
+
           {/* Form kanan */}
           <div className="w-full h-full border rounded-2xl p-5">
             <h2 className="text-xl font-semibold text-[#016A70]">General Information</h2>
 
             <div className="mt-2">
               <label className="text-slate-500 font-medium">Fullname</label>
-              <input type="text" value={userData?.name ?? ""} onChange={(e) => handleFieldChange("name", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+              <input type="text" value={user.name ?? ""} onChange={(e) => handleFieldChange("name", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
             </div>
             <div className="mt-2">
               <label className="text-slate-500 font-medium">Email</label>
-              <input type="email" value={userData.email} onChange={(e) => handleFieldChange("email", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+              <input type="email" value={user.email} onChange={(e) => handleFieldChange("email", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
             </div>
             <div className="mt-2">
               <label className="text-slate-500 font-medium">Phone</label>
-              <input type="text" value={userData.phone ?? ""} onChange={(e) => handleFieldChange("phone", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+              <input type="text" value={user.phone ?? ""} onChange={(e) => handleFieldChange("phone", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
             </div>
 
             <div className="mt-4">
-              <button onClick={handleUpdate} className="rounded-lg bg-[#016A70] px-4 py-2 text-white">
-                Update
+              <button onClick={handleUpdate} className="rounded-lg bg-[#016A70] px-4 py-2 flex gap-4 justify-center items-center text-white">
+                {loading && (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                )}
+                {loading ? "Updating..." : "Update"}
               </button>
             </div>
           </div>

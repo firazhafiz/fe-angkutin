@@ -2,32 +2,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import DropdownNav from "../atoms/DropdownNav";
-import { useEffect, useState } from "react";
 import defaultProfile from "../../public/images/defaultProfile.jpg";
+import { useAuth } from "@/app/context/AuthContext";
 
-type User = {
-  name: string;
-  email: string;
-  role?: string;
-  avatar?: string;
-};
 export default function Header() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth(); // ambil user dari context
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-  }, []);
   return (
     <header className="fixed top-8 left-0 w-full z-50 flex justify-center pointer-events-none">
       <nav className="px-8 gap-24 md:px-16 lg:px-16 flex items-center justify-between backdrop-blur-xs bg-tosca/70 rounded-full py-3 shadow-lg pointer-events-auto">
-        <div className=" w-[100px] flex items-center">
+        <div className="w-[100px] flex items-center">
           <Link href="/" className="flex items-center gap-2 select-none">
             <Image src="/assets/angkutin_white.png" alt="Angkutin Logo" width={1000} height={1000} priority className="object-contain" />
           </Link>
@@ -54,11 +38,10 @@ export default function Header() {
         </ul>
         <div className="flex items-center gap-6">
           {user ? (
-            <>
-              <Link href="/profile" className=" font-semibold text-sm h-10 w-10 rounded-full shadow transition-colors">
-                <Image src={user.avatar || defaultProfile} alt={user.name} width={50} height={50} className="h-10 w-10 rounded-full object-cover" />
-              </Link>
-            </>
+            <Link href="/profile" className="flex items-center gap-2 font-semibold text-sm">
+              <Image src={user.avatar || defaultProfile} alt={user.name || "User profile"} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+              <span>{user.name}</span>
+            </Link>
           ) : (
             <>
               <Link href="/login" className="text-white font-semibold text-sm hover:text-gray-200">

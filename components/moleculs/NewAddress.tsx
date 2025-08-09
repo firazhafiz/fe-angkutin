@@ -33,12 +33,7 @@ interface NewAddressProps {
   userData: UserData;
 }
 
-export default function NewAddress({
-  isOpen,
-  onClose,
-  onConfirm,
-  userData,
-}: NewAddressProps) {
+export default function NewAddress({ isOpen, onClose, onConfirm, userData }: NewAddressProps) {
   const [formData, setFormData] = useState<FormData>({
     name: userData.name,
     phone: userData.phone,
@@ -74,7 +69,6 @@ export default function NewAddress({
 
         setLoadingRegencies(true);
         try {
-          const token = localStorage.getItem("token");
           if (!token) throw new Error("No authentication token found");
 
           const res = await fetch("https://angkutin.vercel.app/v1/regency", {
@@ -84,17 +78,12 @@ export default function NewAddress({
           const result = await res.json();
           if (Array.isArray(result.data)) {
             setRegencies(result.data);
-            localStorage.setItem(
-              CACHE_KEY_REGENCIES,
-              JSON.stringify({ data: result.data, timestamp: Date.now() })
-            );
+            localStorage.setItem(CACHE_KEY_REGENCIES, JSON.stringify({ data: result.data, timestamp: Date.now() }));
           } else {
             throw new Error("Invalid regency data format");
           }
         } catch (err) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load regencies"
-          );
+          setError(err instanceof Error ? err.message : "Failed to load regencies");
         } finally {
           setLoadingRegencies(false);
         }
@@ -110,15 +99,12 @@ export default function NewAddress({
         const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
         if (cachedDistricts && isCacheValid(cachedDistricts)) {
           const allDistricts: District[] = JSON.parse(cachedDistricts).data;
-          setDistricts(
-            allDistricts.filter((d) => d.regency_id === formData.regency_id)
-          );
+          setDistricts(allDistricts.filter((d) => d.regency_id === formData.regency_id));
           return;
         }
 
         setLoadingDistricts(true);
         try {
-          const token = localStorage.getItem("token");
           if (!token) throw new Error("No authentication token found");
 
           const res = await fetch("https://angkutin.vercel.app/v1/district", {
@@ -127,21 +113,14 @@ export default function NewAddress({
           if (!res.ok) throw new Error("Failed to fetch districts");
           const result = await res.json();
           if (Array.isArray(result.data)) {
-            const filteredDistricts = result.data.filter(
-              (d: District) => d.regency_id === formData.regency_id
-            );
+            const filteredDistricts = result.data.filter((d: District) => d.regency_id === formData.regency_id);
             setDistricts(filteredDistricts);
-            localStorage.setItem(
-              CACHE_KEY_DISTRICTS,
-              JSON.stringify({ data: result.data, timestamp: Date.now() })
-            );
+            localStorage.setItem(CACHE_KEY_DISTRICTS, JSON.stringify({ data: result.data, timestamp: Date.now() }));
           } else {
             throw new Error("Invalid district data format");
           }
         } catch (err) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load districts"
-          );
+          setError(err instanceof Error ? err.message : "Failed to load districts");
         } finally {
           setLoadingDistricts(false);
         }
@@ -153,20 +132,11 @@ export default function NewAddress({
     }
   }, [formData.regency_id]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "regency_id" || name === "district_id"
-          ? value
-            ? Number(value)
-            : undefined
-          : value,
+      [name]: name === "regency_id" || name === "district_id" ? (value ? Number(value) : undefined) : value,
       ...(name === "regency_id" && { district_id: undefined }), // Reset district_id when regency changes
     }));
   };
@@ -179,9 +149,7 @@ export default function NewAddress({
 
     // Prepare the address data
     const selectedRegency = regencies.find((r) => r.id === formData.regency_id);
-    const selectedDistrict = districts.find(
-      (d) => d.id === formData.district_id
-    );
+    const selectedDistrict = districts.find((d) => d.id === formData.district_id);
 
     const addressData: FormData = {
       name: formData.name,
@@ -219,8 +187,7 @@ export default function NewAddress({
         left: 0,
         right: 0,
         bottom: 0,
-      }}
-    >
+      }}>
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col mx-4">
         {/* Header */}
         <div className="p-6 border-b border-gray-200 flex-shrink-0">
@@ -233,20 +200,8 @@ export default function NewAddress({
 
           {/* First Row - Name and Phone (Readonly) */}
           <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              value={formData.name}
-              disabled
-              className="w-full px-3 py-3 border text-sm text-gray-500 bg-gray-100 border-gray-300 rounded-md focus:outline-none"
-              placeholder="Firaz Fulvian Hafiz"
-            />
-            <input
-              type="text"
-              value={formData.phone}
-              disabled
-              className="w-full px-3 py-3 border text-sm text-gray-500 bg-gray-100 border-gray-300 rounded-md focus:outline-none"
-              placeholder="Phone Number"
-            />
+            <input type="text" value={formData.name} disabled className="w-full px-3 py-3 border text-sm text-gray-500 bg-gray-100 border-gray-300 rounded-md focus:outline-none" placeholder="Firaz Fulvian Hafiz" />
+            <input type="text" value={formData.phone} disabled className="w-full px-3 py-3 border text-sm text-gray-500 bg-gray-100 border-gray-300 rounded-md focus:outline-none" placeholder="Phone Number" />
           </div>
 
           {/* Second Row - Regency and District */}
@@ -256,8 +211,7 @@ export default function NewAddress({
               value={formData.regency_id || ""}
               onChange={handleChange}
               className="w-full px-3 py-3 border text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
-              disabled={loadingRegencies}
-            >
+              disabled={loadingRegencies}>
               <option value="">Select Regency</option>
               {regencies.map((regency) => (
                 <option key={regency.id} value={regency.id}>
@@ -270,8 +224,7 @@ export default function NewAddress({
               value={formData.district_id || ""}
               onChange={handleChange}
               className="w-full px-3 py-3 border text-sm text-black-100 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca focus:border-transparent"
-              disabled={loadingDistricts || !formData.regency_id}
-            >
+              disabled={loadingDistricts || !formData.regency_id}>
               <option value="">Select District</option>
               {districts.map((district) => (
                 <option key={district.id} value={district.id}>
@@ -295,16 +248,10 @@ export default function NewAddress({
         {/* Actions */}
         <div className="p-6 border-t border-gray-200 flex-shrink-0">
           <div className="flex justify-end gap-2">
-            <button
-              onClick={onClose}
-              className="py-2 px-4 bg-[#FF5656] text-white rounded-md hover:bg-red-400 transition-colors text-sm"
-            >
+            <button onClick={onClose} className="py-2 px-4 bg-[#FF5656] text-white rounded-md hover:bg-red-400 transition-colors text-sm">
               Cancel
             </button>
-            <button
-              onClick={handleConfirm}
-              className="py-2 px-4 bg-tosca text-white rounded-md hover:bg-tosca/90 transition-colors text-sm"
-            >
+            <button onClick={handleConfirm} className="py-2 px-4 bg-tosca text-white rounded-md hover:bg-tosca/90 transition-colors text-sm">
               Confirm
             </button>
           </div>

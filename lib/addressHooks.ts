@@ -1,16 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { Address } from "../components/modals/AddressModal";
-import {
-  fetchAddresses,
-  createAddress,
-  updateAddress,
-  deleteAddress,
-} from "./fetchAddress";
+import { fetchAddresses, createAddress, updateAddress, deleteAddress } from "./fetchAddress";
+import { useAuth } from "@/app/context/AuthContext";
 
-export function useAddressManager(
-  initialAddresses: Address[] = [],
-  initialError: string | null = null
-) {
+export function useAddressManager(initialAddresses: Address[] = [], initialError: string | null = null) {
+  const { token } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -24,7 +18,6 @@ export function useAddressManager(
       setError(null);
       setLoading(true);
 
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
       }
@@ -32,8 +25,7 @@ export function useAddressManager(
       const fetchedAddresses = await fetchAddresses(token);
       setAddresses(fetchedAddresses);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load address data";
+      const errorMessage = err instanceof Error ? err.message : "Failed to load address data";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -54,7 +46,6 @@ export function useAddressManager(
         setIsSubmitting(true);
         setError(null);
 
-        const token = localStorage.getItem("token");
         if (!token) {
           throw new Error("No authentication token found");
         }
@@ -86,17 +77,11 @@ export function useAddressManager(
 
         // Update local state with complete address
         if (isEditing) {
-          setAddresses((prev) =>
-            prev.map((addr, index) =>
-              index === editingIndex ? completeAddress : addr
-            )
-          );
+          setAddresses((prev) => prev.map((addr, index) => (index === editingIndex ? completeAddress : addr)));
         } else {
           setAddresses((prev) => {
             // Prevent duplicates by checking if address already exists by ID
-            const existingAddress = prev.find(
-              (addr) => addr.id === completeAddress.id
-            );
+            const existingAddress = prev.find((addr) => addr.id === completeAddress.id);
             if (existingAddress) {
               return prev;
             }
@@ -107,12 +92,7 @@ export function useAddressManager(
         setEditingIndex(null);
         setModalOpen(false);
       } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : `Failed to ${
-                editingIndex !== null ? "update" : "create"
-              } address`;
+        const errorMessage = err instanceof Error ? err.message : `Failed to ${editingIndex !== null ? "update" : "create"} address`;
         setError(errorMessage);
       } finally {
         setIsSubmitting(false);
@@ -126,14 +106,12 @@ export function useAddressManager(
     if (!confirm("Are you sure you want to delete this address?")) return;
 
     try {
-      const token = localStorage.getItem("token");
       if (!token) throw new Error("No authentication token found");
 
       await deleteAddress(token, addressId);
       setAddresses((prev) => prev.filter((addr) => addr.id !== addressId));
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to delete address";
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete address";
       setError(errorMessage);
     }
   }, []);

@@ -3,6 +3,8 @@
 // Enum untuk role
 enum Role {
   user = "user",
+  admin = "admin",
+  consultant = "consultant",
   // Tambahkan role lain jika ada, misalnya admin, consultan, dll.
 }
 

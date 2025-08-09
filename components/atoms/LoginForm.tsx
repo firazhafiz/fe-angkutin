@@ -7,10 +7,10 @@ interface LoginFormProps {
   };
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: FormEvent) => void;
-  isLoading?: boolean; // tambahkan
+  loading?: boolean; // tambahkan
 }
 
-export default function LoginForm({ formData, onChange, onSubmit, isLoading }: LoginFormProps) {
+export default function LoginForm({ formData, onChange, onSubmit, loading }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="w-full space-y-4">
       <div>
@@ -45,15 +45,15 @@ export default function LoginForm({ formData, onChange, onSubmit, isLoading }: L
       </div>
       <button
         type="submit"
-        disabled={isLoading}
-        className={`w-full bg-tosca text-white font-semibold py-3 rounded-md transition-colors mt-6 flex items-center justify-center gap-2 ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-tosca/90"}`}>
-        {isLoading && (
+        disabled={loading}
+        className={`w-full bg-tosca text-white font-semibold py-3 rounded-md transition-colors mt-6 flex items-center justify-center gap-2 ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-tosca/90"}`}>
+        {loading && (
           <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
         )}
-        {isLoading ? "Logging in..." : "Login"}
+        {loading ? "Logging in..." : "Login"}
       </button>
     </form>
   );

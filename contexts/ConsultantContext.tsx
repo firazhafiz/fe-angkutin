@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/app/context/AuthContext";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface ConsultantCategory {
@@ -51,6 +52,7 @@ interface ConsultantProviderProps {
 
 // ... (other imports remain the same)
 export function ConsultantProvider({ children }: ConsultantProviderProps) {
+  const { token } = useAuth();
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
   const [categories, setCategories] = useState<ConsultantCategory[]>([]);
   const [consultants, setConsultants] = useState<Consultant[]>([]);
@@ -68,7 +70,6 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("token");
       const headers: HeadersInit = {};
 
       if (token) {
@@ -115,7 +116,6 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("token");
       const headers: HeadersInit = {};
 
       if (token) {
@@ -150,7 +150,6 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
 
   const createConsultation = async (consultantId: number): Promise<Consultation | null> => {
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
       }

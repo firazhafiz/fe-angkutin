@@ -3,12 +3,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { fetchAddresses } from "./fetchAddress";
 import { Address } from "../components/modals/AddressModal";
+import { useAuth } from "@/app/context/AuthContext";
 
 // Global cache untuk address data (shared across components)
-const globalAddressCache = new Map<
-  string,
-  { data: Address[]; timestamp: number }
->();
+const globalAddressCache = new Map<string, { data: Address[]; timestamp: number }>();
 const CACHE_DURATION = 10 * 60 * 1000; // 10 menit untuk cache yang lebih lama
 
 // Preload addresses when component mounts
@@ -34,12 +32,12 @@ export const invalidateAddressCache = (token?: string) => {
 
 // Custom hook untuk address fetching dengan advanced optimizations
 export const useAddressData = () => {
+  const { token } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAddressData = useCallback(async (forceRefresh = false) => {
-    const token = localStorage.getItem("token");
 
     if (!token) {
       setError("No authentication token found");
@@ -50,11 +48,7 @@ export const useAddressData = () => {
     const cacheKey = `addresses_${token}`;
     const cached = globalAddressCache.get(cacheKey);
 
-    if (
-      !forceRefresh &&
-      cached &&
-      Date.now() - cached.timestamp < CACHE_DURATION
-    ) {
+    if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       setAddresses(cached.data);
       return;
     }
@@ -74,8 +68,7 @@ export const useAddressData = () => {
 
       setAddresses(data);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch addresses";
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch addresses";
       setError(errorMessage);
       console.error("Error fetching addresses:", err);
     } finally {
@@ -123,13 +116,7 @@ export const useAddressData = () => {
     if (addresses.length === 0) return "";
 
     const firstAddress = addresses[0];
-    return [
-      firstAddress.street,
-      firstAddress.district?.name,
-      firstAddress.regency?.name,
-    ]
-      .filter(Boolean)
-      .join(", ");
+    return [firstAddress.street, firstAddress.district?.name, firstAddress.regency?.name].filter(Boolean).join(", ");
   }, [addresses]);
 
   return { addresses, loading, error, fetchAddressData, formattedAddress };
@@ -148,13 +135,7 @@ export const useSelectedAddress = () => {
         const parsed = JSON.parse(saved) as Address;
         setSelectedAddress(parsed);
         // Update text immediately
-        const text = [
-          parsed.street,
-          parsed.district?.name,
-          parsed.regency?.name,
-        ]
-          .filter(Boolean)
-          .join(", ");
+        const text = [parsed.street, parsed.district?.name, parsed.regency?.name].filter(Boolean).join(", ");
         setSelectedAddressText(text);
       } catch (error) {
         console.error("Error parsing selected address:", error);
@@ -169,13 +150,7 @@ export const useSelectedAddress = () => {
         try {
           const parsed = JSON.parse(e.newValue) as Address;
           setSelectedAddress(parsed);
-          const text = [
-            parsed.street,
-            parsed.district?.name,
-            parsed.regency?.name,
-          ]
-            .filter(Boolean)
-            .join(", ");
+          const text = [parsed.street, parsed.district?.name, parsed.regency?.name].filter(Boolean).join(", ");
           setSelectedAddressText(text);
         } catch (error) {
           console.error("Error parsing selected address:", error);
@@ -193,9 +168,7 @@ export const useSelectedAddress = () => {
     localStorage.setItem("selectedAddress", JSON.stringify(address));
 
     // Update text immediately
-    const text = [address.street, address.district?.name, address.regency?.name]
-      .filter(Boolean)
-      .join(", ");
+    const text = [address.street, address.district?.name, address.regency?.name].filter(Boolean).join(", ");
     setSelectedAddressText(text);
   }, []);
 
@@ -206,13 +179,7 @@ export const useSelectedAddress = () => {
       try {
         const parsed = JSON.parse(saved) as Address;
         setSelectedAddress(parsed);
-        const text = [
-          parsed.street,
-          parsed.district?.name,
-          parsed.regency?.name,
-        ]
-          .filter(Boolean)
-          .join(", ");
+        const text = [parsed.street, parsed.district?.name, parsed.regency?.name].filter(Boolean).join(", ");
         setSelectedAddressText(text);
       } catch (error) {
         console.error("Error parsing selected address:", error);
@@ -236,9 +203,7 @@ export const useSelectedAddress = () => {
           updateSelectedAddress(availableAddresses[0]);
         } else {
           // Check if selected address still exists
-          const selectedAddressExists = availableAddresses.find(
-            (addr) => addr.id === selectedAddress?.id
-          );
+          const selectedAddressExists = availableAddresses.find((addr) => addr.id === selectedAddress?.id);
 
           if (!selectedAddressExists) {
             // If selected address no longer exists, select the first one
@@ -288,8 +253,7 @@ AddressDisplay.displayName = "AddressDisplay";
 
 // Main address data component dengan advanced optimizations
 export function AddressData() {
-  const { addresses, loading, error, fetchAddressData, formattedAddress } =
-    useAddressData();
+  const { addresses, loading, error, fetchAddressData, formattedAddress } = useAddressData();
   const { selectedAddressText } = useSelectedAddress();
 
   // Preload data on mount
