@@ -29,17 +29,18 @@ export default function ProfilePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (!user) return null; 
   const handleFieldChange = (key: keyof User, value: string) => {
-    setUser((prev) => (prev ? { ...prev, [key]: value } : prev));
+    if (!user) return;
+    setUser({ ...user, [key]: value });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
+
     setAvatarFile(file);
     const preview = URL.createObjectURL(file);
-    setUser((prev) => (prev ? { ...prev, avatar: preview } : prev));
+    setUser({ ...user, avatar: preview });
     setImageError(false);
   };
 
@@ -50,7 +51,7 @@ export default function ProfilePage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`https://angkutin.vercel.app/v1/user/${user.id}/update-avatar`, {
+      const res = await fetch(`https://angkutin.vercel.app/v1/user/${user?.id}/update-avatar`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -76,16 +77,16 @@ export default function ProfilePage() {
     try {
       if (avatarFile) await handleAvatarUpload();
 
-      const res = await fetch(`https://angkutin.vercel.app/v1/user/${user.id}`, {
+      const res = await fetch(`https://angkutin.vercel.app/v1/user/${user?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
+          name: user?.name,
+          email: user?.email,
+          phone: user?.phone,
         }),
       });
 
@@ -110,8 +111,8 @@ export default function ProfilePage() {
         <div className="flex h-full gap-4 mt-6">
           {/* Sidebar kiri */}
           <div className="w-2/5 h-full border rounded-2xl p-5 flex flex-col justify-center items-center">
-            {user.avatar && !imageError ? (
-              <Image src={user.avatar} alt="User Avatar" width={150} height={150} className="h-[150px] w-[150px] rounded-full object-cover" onError={() => setImageError(true)} unoptimized />
+            {user?.avatar && !imageError ? (
+              <Image src={user?.avatar} alt="User Avatar" width={150} height={150} className="h-[150px] w-[150px] rounded-full object-cover" onError={() => setImageError(true)} unoptimized />
             ) : (
               <div className="h-[150px] w-[150px] rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">{imageError ? "Error Loading" : "No Avatar"}</div>
             )}
@@ -121,8 +122,8 @@ export default function ProfilePage() {
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
             <div className="mt-3 text-center">
-              <h2 className="font-semibold text-[#016A70]">{user.name}</h2>
-              <h3 className="text-slate-500 text-sm">{user.phone || "Belum ada nomor telepon"}</h3>
+              <h2 className="font-semibold text-[#016A70]">{user?.name}</h2>
+              <h3 className="text-slate-500 text-sm">{user?.phone || "Belum ada nomor telepon"}</h3>
             </div>
           </div>
 
@@ -132,15 +133,15 @@ export default function ProfilePage() {
 
             <div className="mt-2">
               <label className="text-slate-500 font-medium">Fullname</label>
-              <input type="text" value={user.name ?? ""} onChange={(e) => handleFieldChange("name", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+              <input type="text" value={user?.name ?? ""} onChange={(e) => handleFieldChange("name", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
             </div>
             <div className="mt-2">
               <label className="text-slate-500 font-medium">Email</label>
-              <input type="email" value={user.email} onChange={(e) => handleFieldChange("email", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+              <input type="email" value={user?.email} onChange={(e) => handleFieldChange("email", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
             </div>
             <div className="mt-2">
               <label className="text-slate-500 font-medium">Phone</label>
-              <input type="text" value={user.phone ?? ""} onChange={(e) => handleFieldChange("phone", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
+              <input type="text" value={user?.phone ?? ""} onChange={(e) => handleFieldChange("phone", e.target.value)} className="w-full p-2 border rounded-lg mt-1 text-slate-600" />
             </div>
 
             <div className="mt-4">
