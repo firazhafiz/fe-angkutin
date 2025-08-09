@@ -9,7 +9,7 @@ interface AuthContextProps {
   token: string | null;
   setUser: (user: User | null) => void;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 }
