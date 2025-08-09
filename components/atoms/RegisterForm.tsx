@@ -6,17 +6,14 @@ type Props = {
     confirmPassword: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  
+  error: string | null;
 };
 
-export default function RegisterForm({ formData, onChange }: Props) {
+export default function RegisterForm({ error, formData, onChange }: Props) {
   return (
     <form className="w-full space-y-4">
       <div>
-        <label
-          htmlFor="name"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="name" className="block text-md font-medium text-gray-700 mb-2">
           Fullname
         </label>
         <input
@@ -32,10 +29,7 @@ export default function RegisterForm({ formData, onChange }: Props) {
       </div>
 
       <div>
-        <label
-          htmlFor="email"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="email" className="block text-md font-medium text-gray-700 mb-2">
           Email
         </label>
         <input
@@ -51,10 +45,7 @@ export default function RegisterForm({ formData, onChange }: Props) {
       </div>
 
       <div>
-        <label
-          htmlFor="password"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="password" className="block text-md font-medium text-gray-700 mb-2">
           Password
         </label>
         <input
@@ -70,10 +61,7 @@ export default function RegisterForm({ formData, onChange }: Props) {
       </div>
 
       <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-md font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="confirmPassword" className="block text-md font-medium text-gray-700 mb-2">
           Confirm Password
         </label>
         <input
@@ -87,6 +75,7 @@ export default function RegisterForm({ formData, onChange }: Props) {
           required
         />
       </div>
+      <div>{error && <p className="text-red-500">{error}</p>}</div>
     </form>
   );
 }

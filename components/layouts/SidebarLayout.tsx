@@ -29,9 +29,9 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 
   return (
     <main className="w-full min-h-screen relative  bg-gray-100 overflow-hidden">
-      <div className="flex gap-2.5 w-full mt-40 px-40 h-4/5">
+      <div className="flex gap-4 w-full mt-40 px-40 h-[720px]">
         {/* Sidebar */}
-        <div className="w-1/4 h-fit bg-white rounded-2xl p-5">
+        <div className="w-1/4 h-full bg-white rounded-2xl p-5">
           <div className="flex gap-4 items-center">
             <Link href="/" className="bg-[#F0F0F0] rounded-full w-fit p-2 cursor-pointer">
               <Image src={backIcon} alt="back-icon" className="h-6 w-6" />
@@ -56,7 +56,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
         </div>
 
         {/* Main Content */}
-        <div className="w-3/4 h-full bg-white rounded-2xl p-5">{children}</div>
+        <div className="w-3/4 h-[720px] bg-white rounded-2xl p-5">{children}</div>
       </div>
     </main>
   );

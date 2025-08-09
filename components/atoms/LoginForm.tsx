@@ -8,9 +8,10 @@ interface LoginFormProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: FormEvent) => void;
   loading?: boolean; // tambahkan
+  error?: string | null;
 }
 
-export default function LoginForm({ formData, onChange, onSubmit, loading }: LoginFormProps) {
+export default function LoginForm({ error, formData, onChange, onSubmit, loading }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="w-full space-y-4">
       <div>
@@ -43,6 +44,7 @@ export default function LoginForm({ formData, onChange, onSubmit, loading }: Log
           className="w-full px-3 py-2 border text-sm text-black-100 placeholder:text-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-tosca"
         />
       </div>
+      <div>{error && <p className="text-red-500">{error}</p>}</div>
       <button
         type="submit"
         disabled={loading}

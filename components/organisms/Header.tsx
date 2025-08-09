@@ -39,8 +39,8 @@ export default function Header() {
         <div className="flex items-center gap-6">
           {user ? (
             <Link href="/profile" className="flex items-center gap-2 font-semibold text-sm">
+              <span>{user.name.split(" ")[0]}</span>
               <Image src={user.avatar || defaultProfile} alt={user.name || "User profile"} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-              <span>{user.name}</span>
             </Link>
           ) : (
             <>

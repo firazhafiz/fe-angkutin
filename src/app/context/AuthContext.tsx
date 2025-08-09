@@ -7,10 +7,11 @@ import { User } from "../../../types/user";
 interface AuthContextProps {
   user: User | null;
   token: string | null;
+  error: string | null;
   setUser: (user: User | null) => void;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const storedToken = Cookies.get("token");
@@ -59,7 +61,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) throw new Error("Login failed");
+      if (!res.ok) {
+        setError("Invalid email or password");
+        throw new Error("Login failed");
+      }
 
       const data = await res.json();
       // console.log(data.data);
@@ -77,7 +82,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, confirmPassword: string) => {
+    setLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      setError("All fields are required");
+      setLoading(false);
+      return false;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return false;
+    }
     try {
       const res = await fetch("https://angkutin.vercel.app/v1/auth/register", {
         method: "POST",
@@ -88,10 +104,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) throw new Error("Register failed");
 
       const data = await res.json();
-      Cookies.set("token", data.token, { expires: 7 });
-      await fetchUserProfile(data.token);
+      setToken(data.data.tokens.access.token);
+      setLoading(false);
+      return true;
     } catch (error) {
+      setError("Registration failed");
       console.error("Register error:", error);
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  return <AuthContext.Provider value={{ user, loading, setUser, token, login, register, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ error, user, loading, setUser, token, login, register, logout }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

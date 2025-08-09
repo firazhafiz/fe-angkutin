@@ -6,8 +6,6 @@ import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
-
-
 interface FormData {
   email: string;
   password: string;
@@ -15,7 +13,7 @@ interface FormData {
 
 export default function LoginContent() {
   const router = useRouter();
-  const { login, loading } = useAuth();
+  const { login, loading, error } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -40,7 +38,7 @@ export default function LoginContent() {
   return (
     <div className="w-[500px] h-auto bg-white rounded-lg shadow-sm p-8">
       <h1 className="text-3xl font-bold text-black-100 text-center mb-8 font">Login</h1>
-      <LoginForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} loading={loading} />
+      <LoginForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} loading={loading} error={error} />
       <div className="flex items-center justify-center my-6">
         <div className="flex-1 border-t border-gray-300"></div>
         <span className="px-4 text-gray-500 text-sm">OR</span>
