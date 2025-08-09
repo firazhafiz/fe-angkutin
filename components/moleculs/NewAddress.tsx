@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/context/AuthContext";
 import { useState, useEffect } from "react";
 
 interface UserData {
@@ -34,6 +35,7 @@ interface NewAddressProps {
 }
 
 export default function NewAddress({ isOpen, onClose, onConfirm, userData }: NewAddressProps) {
+  const { token } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     name: userData.name,
     phone: userData.phone,
