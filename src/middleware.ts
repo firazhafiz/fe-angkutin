@@ -7,10 +7,9 @@ export async function middleware(request: NextRequest) {
 
   // Cek apakah rute dilindungi
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+  const token = request.cookies.get("token")?.value;
 
   if (isProtected) {
-    const token = request.cookies.get("token")?.value;
-
     if (!token) {
       // Simpan URL asal (termasuk query params) untuk redirect setelah login
       const returnUrl = encodeURIComponent(`${pathname}${search}`);
@@ -30,23 +29,13 @@ export async function middleware(request: NextRequest) {
 
       if (!response.ok) {
         // Token tidak valid, hapus cookie dan redirect ke login
-        const returnUrl = encodeURIComponent(`${pathname}${search}`);
-        const loginUrl = new URL(`/login?returnUrl=${returnUrl}`, request.url);
-        const response = NextResponse.redirect(loginUrl);
-        response.cookies.delete("token");
-        return response;
+        const loginUrl = new URL(`/login`, request.url);
+        return NextResponse.redirect(loginUrl);
       }
-
-      // Token valid, lanjutkan
-      return NextResponse.next();
     } catch (error) {
-      console.error("Middleware token validation error:", error);
-      // Jika error jaringan atau lainnya, redirect ke login
-      const returnUrl = encodeURIComponent(`${pathname}${search}`);
-      const loginUrl = new URL(`/login?returnUrl=${returnUrl}`, request.url);
-      const response = NextResponse.redirect(loginUrl);
-      response.cookies.delete("token");
-      return response;
+      console.error("Token validation error:", error);
+      const loginUrl = new URL(`/login`, request.url);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -54,5 +43,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/order/:path*"],
+  matcher: ["/profile/:path*", "/order/:path*"],
 };
