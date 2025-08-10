@@ -16,13 +16,9 @@ interface BlogItem {
   published_at: string;
 }
 
-export default async function DetailBlog({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function DetailBlog({ params }: { params: { id: string } }) {
   return (
-    <main className="w-full flex flex-col gap-10">
+    <main className="w-full flex flex-col gap-10 px-4 md:px-0">
       {/* Bagian konten blog */}
       <section>
         <Suspense fallback={<BlogContentSkeleton />}>

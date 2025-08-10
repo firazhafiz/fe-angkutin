@@ -32,20 +32,12 @@ export default function CardTutorialList() {
     fetchTutorials();
   }, []);
 
-  if (loading)
-    return <div className="text-center py-10">Loading tutorials...</div>;
+  if (loading) return <div className="text-center py-10">Loading tutorials...</div>;
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 px-4 md:px-0 ">
       {tutorials.map((tutorial) => (
-        <CardTutorial
-          key={tutorial.id}
-          id={tutorial.id}
-          videoUrl={tutorial.videoUrl}
-          title={tutorial.title}
-          description={tutorial.description}
-          created_at={tutorial.created_at}
-        />
+        <CardTutorial key={tutorial.id} id={tutorial.id} videoUrl={tutorial.videoUrl} title={tutorial.title} description={tutorial.description} created_at={tutorial.created_at} />
       ))}
     </div>
   );

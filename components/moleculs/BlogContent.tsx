@@ -14,39 +14,26 @@ export default function BlogContent({ blog }: { blog: BlogItem }) {
   return (
     <div className="w-full" key={blog.id}>
       {/* Tanggal & Penulis */}
-      <div className="text-md text-gray-500 mb-2">
-        Published on:{" "}
-        {new Date(blog.published_at).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
+      <div className="flex items-center gap-2 mb-1">
+        <div className="text-sm text-gray-600 ">By {blog.author}</div>
+        <p className="text-xs text-gray-500">
+          {new Date(blog.published_at).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
       </div>
-      <div className="text-sm text-gray-600 mb-6">By {blog.author}</div>
-
-      {/* Judul */}
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">{blog.title}</h1>
-
+      <h1 className="text-xl md:text-4xl font-bold text-gray-900 mb-2">{blog.title}</h1>
+      <h3 className="text-md md:text-md  text-gray-500 mt-2 mb-4">{blog.description}</h3>
       {/* Thumbnail */}
       <div className="mb-8 flex ">
-        <Image
-          src={blog.thumbnail}
-          alt={blog.title}
-          width={1000}
-          height={1000}
-          className="w-full max-w-[860px] h-[480px] object-cover rounded-xl"
-          priority={true}
-        />
+        <Image src={blog.thumbnail} alt={blog.title} width={1000} height={1000} className="w-full max-w-[860px] h-[280px]  md:h-[480px] object-cover rounded-xl" priority={true} />
       </div>
 
       {/* Deskripsi dan Konten */}
       <div className="max-w-5xl">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
-          {blog.description}
-        </h3>
-        <p className="text-gray-800 leading-relaxed whitespace-pre-line">
-          {blog.content}
-        </p>
+        <p className="text-gray-800 leading-relaxed whitespace-pre-line">{blog.content}</p>
       </div>
     </div>
   );

@@ -6,10 +6,8 @@ import BlogRecomendationSkeleton from "../atoms/BlogRecomendationSkeleton";
 export default function BlogList() {
   return (
     <section className="w-full">
-      <div className="w-full mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-black-100 mb-12">
-          Recent Blog Posts
-        </h2>
+      <div className="w-full mx-auto px-4 md:px-0">
+        <h2 className="text-2xl md:text-3xl font-bold text-black-100 mb-12">Recent Blog Posts</h2>
         <Suspense fallback={<BlogRecomendationSkeleton />}>
           <BlogListData />
         </Suspense>

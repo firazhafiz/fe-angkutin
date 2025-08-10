@@ -42,7 +42,7 @@ export default function RegisterContent() {
   };
 
   return (
-    <div className="w-[570px] bg-white rounded-lg shadow-sm p-8">
+    <div className="w-[340px] md:w-[570px]  bg-white rounded-lg shadow-sm px-8 py-6 md:p-8">
       <h1 className="text-2xl font-bold text-gray-900 text-center mb-6">Register</h1>
 
       <RegisterForm formData={formData} onChange={handleChange} error={error} />

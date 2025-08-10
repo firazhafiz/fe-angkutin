@@ -36,7 +36,7 @@ export default function LoginContent() {
   };
 
   return (
-    <div className="w-[500px] h-auto bg-white rounded-lg shadow-sm p-8">
+    <div className="w-[340px] md:w-[500px] h-auto bg-white rounded-lg shadow-sm p-8">
       <h1 className="text-3xl font-bold text-black-100 text-center mb-8 font">Login</h1>
       <LoginForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} loading={loading} error={error} />
       <div className="flex items-center justify-center my-6">

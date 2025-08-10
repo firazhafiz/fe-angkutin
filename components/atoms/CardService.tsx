@@ -12,7 +12,7 @@ export default function CardService({
   description,
 }: CardServiceProps) {
   return (
-    <div className="flex flex-col items-center justify-start bg-white rounded-2xl shadow-lg px-6 py-8 min-w-[220px] max-w-xs transition-transform hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
+    <div className="flex flex-col items-center justify-start bg-white rounded-2xl  px-6 py-8 min-w-[220px] max-w-xs transition-transform hover:-translate-y-2  hover:shadow-md border border-gray-100">
       <div className="w-16 h-16 flex items-center justify-center mb-4">
         <Image
           src={icon}
