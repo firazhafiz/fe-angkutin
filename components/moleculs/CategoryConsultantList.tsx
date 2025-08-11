@@ -13,15 +13,7 @@ export default function CategoryConsultantList() {
 
     return categories.map((category, index) => (
       <div key={category.id} onClick={() => handleSelectCategory(index)} className="cursor-pointer">
-        <CategoryConsultant
-          image={category.thumbnail || "/images/default-category.png"}
-          name={category.name}
-          consultantCount={category.consultantCount || 0}
-          isHovered={hoveredCategory === index}
-          isSelected={selectedCategoryIndex === index}
-          onMouseEnter={() => setHoveredCategory(index)}
-          onMouseLeave={() => setHoveredCategory(null)}
-        />
+        <CategoryConsultant consultantCategory={category} isHovered={hoveredCategory === index} isSelected={selectedCategoryIndex === index} onMouseEnter={() => setHoveredCategory(index)} onMouseLeave={() => setHoveredCategory(null)} />
       </div>
     ));
   }, [categories, selectedCategoryIndex, handleSelectCategory, hoveredCategory]);

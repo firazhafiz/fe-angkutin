@@ -1,26 +1,7 @@
 "use client";
 import { useAuth } from "@/app/context/AuthContext";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-export interface ConsultantCategory {
-  id: number;
-  name: string;
-  thumbnail?: string;
-  consultantCount?: number;
-}
-
-export interface Consultant {
-  id: number;
-  name: string;
-  email: string;
-  avatar?: string;
-  specialization?: string;
-  rating?: number;
-  experience?: number;
-  description?: string;
-  categoryId?: number;
-  category?: ConsultantCategory;
-}
+import { User, ConsultantCategory } from "../types/user";
 
 export interface Consultation {
   id: number;
@@ -28,19 +9,17 @@ export interface Consultation {
   consultantId: number;
   status: "pending" | "accepted" | "rejected" | "completed";
   created_at: string;
-  user?: Consultant;
-  consultan?: Consultant;
+  user?: User;
+  consultan?: User;
 }
 
 interface ConsultantContextType {
   selectedCategoryIndex: number;
-  setSelectedCategoryIndex: (index: number) => void;
   handleSelectCategory: (index: number) => Promise<void>;
   categories: ConsultantCategory[];
-  consultants: Consultant[];
+  consultants: User[];
   loading: boolean;
   error: string | null;
-  fetchConsultantsByCategory: (categoryId: number) => Promise<void>;
   createConsultation: (consultantId: number) => Promise<Consultation | null>;
 }
 
@@ -50,15 +29,13 @@ interface ConsultantProviderProps {
   children: ReactNode;
 }
 
-// ... (other imports remain the same)
 export function ConsultantProvider({ children }: ConsultantProviderProps) {
   const { token } = useAuth();
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
   const [categories, setCategories] = useState<ConsultantCategory[]>([]);
-  const [consultants, setConsultants] = useState<Consultant[]>([]);
+  const [consultants, setConsultants] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastFetchedCategoryId, setLastFetchedCategoryId] = useState<number | null>(null);
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -76,7 +53,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const res = await fetch("https://angkutin.vercel.app/v1/consultant/categories", {
+      const res = await fetch("http://localhost:4000/v1/consultant/categories", {
         headers,
       });
 
@@ -89,11 +66,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
 
       if (Array.isArray(result.data)) {
         setCategories(result.data);
-
-        // Fetch consultants for the first category
-        if (result.data.length > 0) {
-          await fetchConsultantsByCategory(result.data[0].id);
-        }
+        setConsultants(result.data[selectedCategoryIndex]?.users || []);
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -101,48 +74,6 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
       const errorMessage = err instanceof Error ? err.message : "Failed to load categories";
       setError(errorMessage);
       console.error("Error fetching categories:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchConsultantsByCategory = async (categoryId: number) => {
-    // Skip fetching if the same category is selected
-    if (categoryId === lastFetchedCategoryId) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const headers: HeadersInit = {};
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`https://angkutin.vercel.app/v1/consultant/category/${categoryId}`, {
-        headers,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.text();
-        throw new Error(`Failed to fetch consultants: ${errorData}`);
-      }
-
-      const result = await res.json();
-
-      if (Array.isArray(result.data.users)) {
-        setConsultants(result.data.users);
-        setLastFetchedCategoryId(categoryId); // Update last fetched category
-      } else {
-        throw new Error("Invalid data format received from server");
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load consultants";
-      setError(errorMessage);
-      console.error("Error fetching consultants:", err);
     } finally {
       setLoading(false);
     }
@@ -184,7 +115,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
     setSelectedCategoryIndex(index);
     const selected = categories[index];
     if (selected) {
-      await fetchConsultantsByCategory(selected.id);
+      setConsultants(categories[index].users || []);
     }
   };
 
@@ -192,13 +123,11 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
     <ConsultantContext.Provider
       value={{
         selectedCategoryIndex,
-        setSelectedCategoryIndex,
         handleSelectCategory,
         categories,
         consultants,
         loading,
         error,
-        fetchConsultantsByCategory,
         createConsultation,
       }}>
       {children}

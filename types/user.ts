@@ -27,7 +27,7 @@ export interface Address {
 }
 
 // Interface untuk Consultation
-interface Consultation {
+export interface Consultation {
   id: number;
   userId: number;
   consultanId: number;
@@ -35,7 +35,7 @@ interface Consultation {
 }
 
 // Interface untuk ChatRoom
-interface ChatRoom {
+export interface ChatRoom {
   id: number;
   userId: number;
   consultanId: number;
@@ -43,7 +43,7 @@ interface ChatRoom {
 }
 
 // Interface untuk ChatMessage
-interface ChatMessage {
+export interface ChatMessage {
   id: number;
   userId: number;
   chatRoomId: number;
@@ -83,10 +83,14 @@ interface UserEvent {
 }
 
 // Interface untuk ConsultantCategory
-interface ConsultantCategory {
+export interface ConsultantCategory {
   id: number;
   name: string;
-  // Tambahkan field lain dari model ConsultantCategory jika ada
+  thumbnail?: string;
+  _count?: {
+    users?: number; // Jumlah consultant dalam kategori ini
+  };
+  users?: User[]; // Relasi ke User (Consultant)
 }
 
 export interface User {

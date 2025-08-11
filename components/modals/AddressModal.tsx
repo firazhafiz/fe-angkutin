@@ -186,7 +186,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   return (
     <div className="fixed inset-0 bg-black/30 bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-[650px] shadow-lg">
-        <h2 className="text-lg font-semibold text-[#016A70] mb-4">{initialData ? "Edit Address" : "Add Address"}</h2>
+        <h2 className="text-lg font-semibold text-[#016A70] mb-4 cursor-pointer">{initialData ? "Edit Address" : "Add Address"}</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <div className="space-y-3">
           <select name="regency_id" value={formData.regency_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingRegencies}>

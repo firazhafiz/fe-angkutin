@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useConsultant } from "../../contexts/ConsultantContext";
+import Image from "next/image";
 
 export default function CardConsultantList() {
   const router = useRouter();
@@ -69,18 +70,15 @@ export default function CardConsultantList() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                {consultant.avatar ? <img src={consultant.avatar} alt={consultant.name} className="w-12 h-12 rounded-full object-cover" /> : <span className="text-gray-500 text-lg">{consultant.name.charAt(0).toUpperCase()}</span>}
+                {consultant.avatar ? (
+                  <Image src={consultant.avatar} alt={consultant.name} width={100} height={100} className="w-12 h-12 rounded-full object-cover" />
+                ) : (
+                  <span className="text-gray-500 text-lg">{consultant.name.charAt(0).toUpperCase()}</span>
+                )}
               </div>
               <div>
                 <h3 className="font-semibold text-[#016A70]">{consultant.name}</h3>
-                <p className="text-sm text-gray-500">{consultant.category?.name || "No Category"}</p>
                 {consultant.specialization && <p className="text-xs text-gray-400">{consultant.specialization}</p>}
-                {consultant.rating && (
-                  <div className="flex items-center mt-1">
-                    <span className="text-yellow-500 text-sm">★</span>
-                    <span className="text-sm text-gray-600 ml-1">{consultant.rating}</span>
-                  </div>
-                )}
               </div>
             </div>
             <div className="flex space-x-2">
