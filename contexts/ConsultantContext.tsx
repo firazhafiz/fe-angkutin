@@ -53,7 +53,7 @@ export function ConsultantProvider({ children }: ConsultantProviderProps) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const res = await fetch("http://localhost:4000/v1/consultant/categories", {
+      const res = await fetch("https://angkutin.vercel.app/v1/consultant/categories", {
         headers,
       });
 
