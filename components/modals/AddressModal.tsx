@@ -1,35 +1,8 @@
 "use client";
 
 import { useAuth } from "@/app/context/AuthContext";
-import { useState, useEffect } from "react";
-
-export interface Address {
-  id?: number;
-  user_id?: number;
-  regency_id?: number;
-  district_id?: number;
-  street: string;
-  regency?: {
-    id: number;
-    name: string;
-  };
-  district?: {
-    id: number;
-    name: string;
-    regency_id: number;
-  };
-}
-
-interface Regency {
-  id: number;
-  name: string;
-}
-
-interface District {
-  id: number;
-  name: string;
-  regency_id: number;
-}
+import { useState, useEffect, ChangeEvent } from "react";
+import { Regency, Address, District } from "../../types/user";
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -39,136 +12,108 @@ interface AddressModalProps {
 }
 
 export default function AddressModal({ isOpen, onClose, onSave, initialData }: AddressModalProps) {
-  const [formData, setFormData] = useState<Address>({
+  const { token } = useAuth();
+
+  const [formData, setFormData] = useState<Partial<Address>>({
     street: "",
     regency_id: undefined,
     district_id: undefined,
   });
-  const { token } = useAuth();
+
   const [regencies, setRegencies] = useState<Regency[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [loadingRegencies, setLoadingRegencies] = useState(false);
-  const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const CACHE_KEY_REGENCIES = "regencies_cache";
-  const CACHE_KEY_DISTRICTS = "districts_cache";
-  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  /** Fetch regencies beserta districts */
+  const fetchRegencies = async () => {
+    try {
+      setLoadingRegencies(true);
+      if (!token) throw new Error("No authentication token found");
 
-  const isCacheValid = (cache: string | null) => {
-    if (!cache) return false;
-    const parsed = JSON.parse(cache);
-    return parsed.timestamp && Date.now() - parsed.timestamp < CACHE_DURATION;
+      const res = await fetch("https://angkutin.vercel.app/v1/regency", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch regencies");
+
+      const result = await res.json();
+      if (Array.isArray(result.data)) {
+        setRegencies(result.data); // tiap regency sudah punya districts
+      } else {
+        throw new Error("Invalid regency data format");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load regencies");
+    } finally {
+      setLoadingRegencies(false);
+    }
   };
 
+  /** Load data saat modal dibuka */
   useEffect(() => {
     if (isOpen) {
-      const fetchRegencies = async () => {
-        const cachedRegencies = localStorage.getItem(CACHE_KEY_REGENCIES);
-        if (cachedRegencies && isCacheValid(cachedRegencies)) {
-          setRegencies(JSON.parse(cachedRegencies).data);
-          return;
-        }
-
-        setLoadingRegencies(true);
-        try {
-          if (!token) throw new Error("No authentication token found");
-
-          const res = await fetch("https://angkutin.vercel.app/v1/regency", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!res.ok) throw new Error("Failed to fetch regencies");
-          const result = await res.json();
-          if (Array.isArray(result.data)) {
-            setRegencies(result.data);
-            localStorage.setItem(CACHE_KEY_REGENCIES, JSON.stringify({ data: result.data, timestamp: Date.now() }));
-          } else {
-            throw new Error("Invalid regency data format");
-          }
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load regencies");
-        } finally {
-          setLoadingRegencies(false);
-        }
-      };
       fetchRegencies();
     }
-  }, [isOpen]);
+  }, [isOpen, token]);
 
-  useEffect(() => {
-    if (formData.regency_id) {
-      const fetchDistricts = async () => {
-        const cachedDistricts = localStorage.getItem(CACHE_KEY_DISTRICTS);
-        if (cachedDistricts && isCacheValid(cachedDistricts)) {
-          const allDistricts: District[] = JSON.parse(cachedDistricts).data;
-          setDistricts(allDistricts.filter((d) => d.regency_id === formData.regency_id));
-          return;
-        }
-
-        setLoadingDistricts(true);
-        try {
-          if (!token) throw new Error("No authentication token found");
-
-          const res = await fetch("https://angkutin.vercel.app/v1/district", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!res.ok) throw new Error("Failed to fetch districts");
-          const result = await res.json();
-          if (Array.isArray(result.data)) {
-            const filteredDistricts = result.data.filter((d: District) => d.regency_id === formData.regency_id);
-            setDistricts(filteredDistricts);
-            localStorage.setItem(CACHE_KEY_DISTRICTS, JSON.stringify({ data: result.data, timestamp: Date.now() }));
-          } else {
-            throw new Error("Invalid district data format");
-          }
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load districts");
-        } finally {
-          setLoadingDistricts(false);
-        }
-      };
-      fetchDistricts();
-    } else {
-      setDistricts([]);
-      setFormData((prev) => ({ ...prev, district_id: undefined }));
-    }
-  }, [formData.regency_id]);
-
+  /** Set form data dari initialData */
   useEffect(() => {
     if (initialData) {
       setFormData({
-        ...initialData,
+        id: initialData.id,
         street: initialData.street || "",
-        regency_id: initialData.regency_id || undefined,
-        district_id: initialData.district_id || undefined,
+        regency_id: initialData.regency_id,
+        district_id: initialData.district_id,
       });
+
+      const selectedRegency = regencies.find((r) => r.id === initialData.regency_id);
+      setDistricts(selectedRegency?.districts || []);
     } else {
       setFormData({
         street: "",
         regency_id: undefined,
         district_id: undefined,
       });
+      setDistricts([]);
     }
-  }, [initialData]);
+  }, [initialData, regencies]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // hanndle changes district by regency
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "regency_id" || name === "district_id" ? (value ? Number(value) : undefined) : value,
-      ...(name === "regency_id" && { district_id: undefined }), // Reset district_id when regency changes
-    }));
+
+    console.log("handleChange", { name, value });
+
+    setFormData((prev) => {
+      const updatedForm = {
+        ...prev,
+        [name]: ["regency_id", "district_id"].includes(name) ? (value ? Number(value) : undefined) : value,
+      };
+
+      if (name === "regency_id") {
+        updatedForm.district_id = undefined;
+        const selectedRegency = regencies.find((r) => r.id === Number(value));
+        console.log("Selected regency:", selectedRegency?.id);
+        // console.log("districts:", selectedRegency?.id.);
+        console.log(regencies);
+        setDistricts(regencies.find((r) => r.id === Number(value))?.districts || []);
+        console.log("Updated districts:", districts);
+      }
+
+      return updatedForm;
+    });
   };
 
+  /** Simpan data */
   const handleSubmit = () => {
     if (!formData.regency_id || !formData.district_id || !formData.street) {
       setError("Please fill in all required fields");
       return;
     }
 
-    // Prepare the address data and pass it to parent component
     const addressData: Address = {
-      id: initialData?.id,
+      id: formData.id,
       regency_id: formData.regency_id,
       district_id: formData.district_id,
       street: formData.street,
@@ -176,7 +121,6 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
       district: districts.find((d) => d.id === formData.district_id),
     };
 
-    // Call parent's onSave function
     onSave(addressData);
     onClose();
   };
@@ -186,9 +130,12 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
   return (
     <div className="fixed inset-0 bg-black/30 bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-[650px] shadow-lg">
-        <h2 className="text-lg font-semibold text-[#016A70] mb-4 cursor-pointer">{initialData ? "Edit Address" : "Add Address"}</h2>
+        <h2 className="text-lg font-semibold text-[#016A70] mb-4">{initialData ? "Edit Address" : "Add Address"}</h2>
+
         {error && <p className="text-red-500 mb-4">{error}</p>}
+
         <div className="space-y-3">
+          {/* Regency */}
           <select name="regency_id" value={formData.regency_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingRegencies}>
             <option value="">Select City</option>
             {regencies.map((regency) => (
@@ -197,7 +144,9 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
               </option>
             ))}
           </select>
-          <select name="district_id" value={formData.district_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={loadingDistricts || !formData.regency_id}>
+
+          {/* District */}
+          <select name="district_id" value={formData.district_id || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" disabled={!formData.regency_id}>
             <option value="">Select District</option>
             {districts.map((district) => (
               <option key={district.id} value={district.id}>
@@ -205,13 +154,17 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
               </option>
             ))}
           </select>
-          <input type="text" name="street" placeholder="Street" value={formData.street} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
+
+          {/* Street */}
+          <input type="text" name="street" placeholder="Street" value={formData.street || ""} onChange={handleChange} className="w-full border p-2 rounded-lg text-slate-500 mt-2" />
         </div>
+
+        {/* Buttons */}
         <div className="mt-5 flex justify-end gap-3">
-          <button onClick={onClose} className="text-slate-500 cursor-pointer">
+          <button onClick={onClose} className="text-slate-500">
             Cancel
           </button>
-          <button onClick={handleSubmit} className="bg-[#016A70] text-white px-4 py-2 rounded cursor-pointer">
+          <button onClick={handleSubmit} className="bg-[#016A70] text-white px-4 py-2 rounded">
             Save
           </button>
         </div>

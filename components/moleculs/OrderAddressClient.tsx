@@ -6,32 +6,14 @@ import AddressModal from "../organisms/AddressModal";
 import { useSelectedAddress, useAddressData } from "../../lib/addressData";
 import { User } from "../../types/user";
 import type { AddressData } from "../../types/user";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function OrderAddressClient() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userData, setUserData] = useState<User | null>(null);
   const [refreshKey, setRefreshKey] = useState(0); // Force refresh key
-  const {
-    selectedAddressText,
-    refreshSelectedAddress,
-    clearSelectedAddress,
-    selectedAddress,
-    updateSelectedAddress,
-    ensureSelectedAddress,
-  } = useSelectedAddress();
+  const { selectedAddressText, refreshSelectedAddress, clearSelectedAddress, selectedAddress, updateSelectedAddress, ensureSelectedAddress } = useSelectedAddress();
   const { addresses, fetchAddressData } = useAddressData();
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser) as User;
-        setUserData(parsed);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-  }, []);
 
   // Ensure we always have a selected address when addresses change
   useEffect(() => {
@@ -97,7 +79,7 @@ export default function OrderAddressClient() {
     }, 100);
   };
 
-  if (!userData) {
+  if (!user) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center gap-3 mb-4">
@@ -130,31 +112,20 @@ export default function OrderAddressClient() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-800">
-              {userData.name || ""}
-            </h3>
-            <p className="text-gray-600 text-sm">({userData.phone || ""})</p>
-            <button
-              onClick={handleEditClick}
-              className="bg-tosca text-white px-4 py-2 rounded-md text-sm hover:bg-tosca/90 transition-colors"
-            >
+            <h3 className="font-semibold text-gray-800">{user.name || ""}</h3>
+            <p className="text-gray-600 text-sm">({user.phone || ""})</p>
+            <button onClick={handleEditClick} className="bg-tosca text-white px-4 py-2 rounded-md text-sm hover:bg-tosca/90 transition-colors">
               Edit
             </button>
           </div>
 
           <div className="md:col-span-1">
-            {addresses.length === 0 ? (
-              <div className="w-full h-16 bg-gray-200 rounded animate-pulse"></div>
-            ) : (
-              <p className="text-gray-600 text-sm leading-relaxed">
-                {selectedAddressText || "Loading address..."}
-              </p>
-            )}
+            {addresses.length === 0 ? <div className="w-full h-16 bg-gray-200 rounded animate-pulse"></div> : <p className="text-gray-600 text-sm leading-relaxed">{selectedAddressText || "Loading address..."}</p>}
           </div>
         </div>
       </div>
 
-      <AddressModal
+      {/* <AddressModal
         key={refreshKey} // Force re-render when refreshKey changes
         isOpen={isModalOpen}
         onClose={handleModalClose}
@@ -165,7 +136,7 @@ export default function OrderAddressClient() {
           phone: userData.phone || "",
           address: "Loading...",
         }}
-      />
+      /> */}
     </>
   );
 }

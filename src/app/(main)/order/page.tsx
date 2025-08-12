@@ -3,7 +3,7 @@ import OrderForm from "../../../../components/organisms/OrderForm";
 import { headers } from "next/headers";
 
 // Preload function untuk address data
-async function preloadAddressData() {
+async function PreloadAddressData() {
   try {
     const headersList = await headers();
     const token = headersList.get("authorization")?.replace("Bearer ", "");
@@ -16,6 +16,8 @@ async function preloadAddressData() {
           "Content-Type": "application/json",
         },
       }).catch(console.error); // Silent fail untuk preload
+    } else {
+      console.log("No token found for preloading address data");
     }
   } catch (error) {
     // Silent fail untuk preload
@@ -26,7 +28,7 @@ export default async function OrderPage({ params }: { params: Promise<{ userId: 
   const resolvedParams = await params;
 
   // Preload address data
-  preloadAddressData();
+  PreloadAddressData();
 
   return (
     <main className="w-full relative min-h-screen bg-gray-100 overflow-hidden">

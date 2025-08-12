@@ -13,25 +13,17 @@ export default function OrderForm() {
       {/* Header */}
       <div className="p-8 pb-6">
         <h1 className="text-3xl font-bold text-tosca mb-2">Order Form</h1>
-        <p className="text-gray-600 text-sm">
-          Manage your order and fill all the form section.
-        </p>
+        <p className="text-gray-600 text-sm">Manage your order and fill all the form section.</p>
       </div>
 
       {/* Form Content */}
       <div className="px-8 pb-8 space-y-6">
-        <Suspense
-          fallback={
-            <div className="bg-gray-200 animate-pulse h-40 w-full rounded-lg"></div>
-          }
-        >
+        <Suspense fallback={<div className="bg-gray-200 animate-pulse h-40 w-full rounded-lg"></div>}>
           <OrderAddressClient /> {/* Hapus prop user */}
         </Suspense>
         <BookingInformation />
         <Link href="/order/id">
-          <button className="w-full bg-tosca text-white font-semibold py-3 text-md rounded-md shadow-md hover:bg-tosca/90 hover:shadow-lg transition-all duration-200">
-            Place Order
-          </button>
+          <button className="w-full bg-tosca text-white font-semibold py-3 text-md rounded-md shadow-md hover:bg-tosca/90 hover:shadow-lg transition-all duration-200">Place Order</button>
         </Link>
       </div>
     </div>

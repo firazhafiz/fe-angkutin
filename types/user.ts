@@ -13,19 +13,22 @@ export interface Address {
   id: number;
   userId: number;
   street: string;
-  regency_id?: number;
-  district_id?: number;
-  regency?: {
-    id: number;
-    name: string;
-  };
-  district?: {
-    id: number;
-    name: string;
-    regency_id: number;
-  };
+  regency_id?: number | null; // Nullable berdasarkan model
+  district_id?: number | null; // Nullable berdasarkan model
+  regency?: Regency;
+  district?: District;
 }
 
+export interface Regency {
+  id: number;
+  name: string;
+  districts?: District[];
+}
+
+export interface District {
+  id: number;
+  name: string;
+}
 // Interface untuk Consultation
 export interface Consultation {
   id: number;
