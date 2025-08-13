@@ -70,11 +70,13 @@ interface PointLog {
   // Tambahkan field lain dari model PointLog jika ada
 }
 
-// Interface untuk Order
-interface Order {
+export interface Order {
   id: number;
-  userId: number;
-  // Tambahkan field lain dari model Order jika ada
+  serviceId: number;
+  wasteTypeId: number;
+  pickupAddressId: number;
+  weight: number;
+  scheduleTime: string;
 }
 
 // Interface untuk UserEvent

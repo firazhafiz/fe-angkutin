@@ -2,13 +2,15 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import Cookies from "js-cookie";
-import { User } from "../../../types/user";
+import { Address, User } from "../../../types/user";
 
 interface AuthContextProps {
   user: User | null;
+  addresses: Address[];
   token: string | null;
   error: string | null;
   setUser: (user: User | null) => void;
+  setAddresses: (addresses: Address[]) => void;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string, confirmPassword: string) => Promise<boolean>;
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,21 +32,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(storedToken);
       fetchUserProfile(storedToken);
     }
+    console.log(addresses);
   }, []);
 
   const fetchUserProfile = async (token: string) => {
     try {
-      const res = await fetch("https://angkutin.vercel.app/v1/user/profile", {
+      const res = await fetch("http://localhost:4000/v1/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        console.log(data.data);
         setUser(data.data);
+        setAddresses(data.data.addresses);
       } else {
         Cookies.remove("token");
         setToken(null);
         setUser(null);
+        setAddresses([]);
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -121,7 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  return <AuthContext.Provider value={{ error, user, loading, setUser, token, login, register, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ error, user, loading, setUser, token, login, register, logout, addresses, setAddresses }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

@@ -3,81 +3,19 @@
 import React, { useState, useEffect } from "react";
 import { MdLocationOn } from "react-icons/md";
 import AddressModal from "../organisms/AddressModal";
-import { useSelectedAddress, useAddressData } from "../../lib/addressData";
 import { User } from "../../types/user";
-import type { AddressData } from "../../types/user";
 import { useAuth } from "@/app/context/AuthContext";
+import { Address } from "../../types/user";
 
 export default function OrderAddressClient() {
-  const { user } = useAuth();
+  const { user, addresses } = useAuth();
+  const [primaryAddress, setPrimaryAddress] = useState<Address | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0); // Force refresh key
-  const { selectedAddressText, refreshSelectedAddress, clearSelectedAddress, selectedAddress, updateSelectedAddress, ensureSelectedAddress } = useSelectedAddress();
-  const { addresses, fetchAddressData } = useAddressData();
 
-  // Ensure we always have a selected address when addresses change
   useEffect(() => {
-    ensureSelectedAddress(addresses);
-  }, [addresses, ensureSelectedAddress]);
-
-  // Fetch address data on mount to validate selected address
-  useEffect(() => {
-    fetchAddressData();
-  }, [fetchAddressData]);
-
-  // Listen for address changes and deletions
-  useEffect(() => {
-    const handleAddressChange = () => {
-      // Force refresh when addresses change
-      setRefreshKey((prev) => prev + 1);
-      setTimeout(() => {
-        refreshSelectedAddress();
-      }, 100);
-    };
-
-    const handleAddressDeleted = () => {
-      // Clear selected address and force refresh when address is deleted
-      clearSelectedAddress();
-      setRefreshKey((prev) => prev + 1);
-    };
-
-    // Listen for custom events
-    window.addEventListener("addressChanged", handleAddressChange);
-    window.addEventListener("addressDeleted", handleAddressDeleted);
-
-    // Also listen for storage changes
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "addresses_updated") {
-        handleAddressChange();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("addressChanged", handleAddressChange);
-      window.removeEventListener("addressDeleted", handleAddressDeleted);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [refreshSelectedAddress, clearSelectedAddress]);
-
-  const handleEditClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleAddressEdit = (address: AddressData) => {
-    setIsModalOpen(false);
-    // Force refresh after address edit
-    setRefreshKey((prev) => prev + 1);
-    // Also refresh the selected address
-    setTimeout(() => {
-      refreshSelectedAddress();
-    }, 100);
-  };
+    console.log(addresses);
+    setPrimaryAddress(addresses[0] || null);
+  }, [user, addresses]);
 
   if (!user) {
     return (
@@ -114,14 +52,23 @@ export default function OrderAddressClient() {
           <div className="space-y-2">
             <h3 className="font-semibold text-gray-800">{user.name || ""}</h3>
             <p className="text-gray-600 text-sm">({user.phone || ""})</p>
-            <button onClick={handleEditClick} className="bg-tosca text-white px-4 py-2 rounded-md text-sm hover:bg-tosca/90 transition-colors">
-              Edit
-            </button>
+            <button className="bg-tosca text-white px-4 py-2 rounded-md text-sm hover:bg-tosca/90 transition-colors">Edit</button>
           </div>
 
-          <div className="md:col-span-1">
-            {addresses.length === 0 ? <div className="w-full h-16 bg-gray-200 rounded animate-pulse"></div> : <p className="text-gray-600 text-sm leading-relaxed">{selectedAddressText || "Loading address..."}</p>}
-          </div>
+          {primaryAddress ? (
+            <div className="md:col-span-1">
+              <div key={addresses[0].id} className="space-y-2">
+                <p>{primaryAddress.id}</p>
+                <h3 className="font-semibold text-gray-800">{primaryAddress?.regency?.name}</h3>
+                <p className="text-gray-600 font-semibold text-sm">{primaryAddress?.district?.name}</p>
+                <p className="text-gray-600 text-sm">{primaryAddress?.street}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="md:col-span-1">
+              <div className="w-full h-16 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,13 +1,18 @@
-// components/organisms/OrderForm.tsx
+"use client";
 import OrderAddressClient from "../moleculs/OrderAddressClient";
 import BookingInformation from "../moleculs/BookingInformation";
 import Link from "next/link";
-import { Suspense } from "react";
-// Hapus impor User karena tidak lagi digunakan
-// import { User } from "../../types/user";
+import { Suspense, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function OrderForm() {
-  // Hapus prop user dari parameter
+  const { addresses } = useAuth();
+  const [formData, setFormData] = useState({
+    scheduleDate: "",
+    scheduleTime: "",
+    email: "",
+    notes: "",
+  });
   return (
     <div className="w-full max-w-[750px] mx-auto bg-white rounded-xl shadow-sm">
       {/* Header */}
@@ -19,7 +24,7 @@ export default function OrderForm() {
       {/* Form Content */}
       <div className="px-8 pb-8 space-y-6">
         <Suspense fallback={<div className="bg-gray-200 animate-pulse h-40 w-full rounded-lg"></div>}>
-          <OrderAddressClient /> {/* Hapus prop user */}
+          <OrderAddressClient addresses={addresses} /> {/* Hapus prop user */}
         </Suspense>
         <BookingInformation />
         <Link href="/order/id">
