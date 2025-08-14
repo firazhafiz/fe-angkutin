@@ -10,8 +10,7 @@ enum Role {
 
 // Interface untuk Address (dari relasi addresses)
 export interface Address {
-  id: number;
-  userId: number;
+  id: number | null | undefined; // Nullable atau undefined sesuai dengan model
   street: string;
   regency_id?: number | null; // Nullable berdasarkan model
   district_id?: number | null; // Nullable berdasarkan model

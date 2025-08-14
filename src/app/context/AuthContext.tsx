@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserProfile = async (token: string) => {
     try {
-      const res = await fetch("http://localhost:4000/v1/user/profile", {
+      const res = await fetch("https://angkutin.vercel.app/v1/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {

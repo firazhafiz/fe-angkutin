@@ -29,7 +29,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }: A
 
   useEffect(() => {
     setLoadingRegencies(true);
-    fetch("http://localhost:4000/v1/regency", {
+    fetch("https://angkutin.vercel.app/v1/regency", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

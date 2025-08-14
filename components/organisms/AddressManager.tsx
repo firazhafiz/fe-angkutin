@@ -74,7 +74,7 @@ const AddressManager = () => {
       let response;
       if (editingIndex !== null && address.id) {
         // Edit address
-        response = await fetch(`http://localhost:4000/v1/address/${address.id}`, {
+        response = await fetch(`https://angkutin.vercel.app/v1/address/${address.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const AddressManager = () => {
         });
       } else {
         // Add address
-        response = await fetch("http://localhost:4000/v1/address", {
+        response = await fetch("https://angkutin.vercel.app/v1/address", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
