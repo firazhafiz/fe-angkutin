@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import { useAddressData, useSelectedAddress } from "../../lib/addressData";
 import Address from "../atoms/Address";
-import { User } from "../../types/user";
-import { Address as AddressType } from "../modals/AddressModal";
+import { User, Address as AddressType } from "../../types/user";
 
 interface AddressData {
   name: string;
@@ -19,12 +18,7 @@ interface AddressListProps {
 
 export default function AddressList({ onEdit, user }: AddressListProps) {
   const { addresses, loading, error, fetchAddressData } = useAddressData();
-  const {
-    selectedAddress,
-    updateSelectedAddress,
-    clearSelectedAddress,
-    ensureSelectedAddress,
-  } = useSelectedAddress();
+  const { selectedAddress, updateSelectedAddress, clearSelectedAddress, ensureSelectedAddress } = useSelectedAddress();
 
   // Trigger fetch on mount only once
   useEffect(() => {
@@ -53,14 +47,7 @@ export default function AddressList({ onEdit, user }: AddressListProps) {
     return () => {
       window.removeEventListener("addressDeleted", handleAddressDeleted);
     };
-  }, [
-    selectedAddress,
-    addresses,
-    fetchAddressData,
-    clearSelectedAddress,
-    updateSelectedAddress,
-    ensureSelectedAddress,
-  ]);
+  }, [selectedAddress, addresses, fetchAddressData, clearSelectedAddress, updateSelectedAddress, ensureSelectedAddress]);
 
   const handleSelect = (index: number, address: AddressType) => {
     updateSelectedAddress(address);
@@ -74,10 +61,7 @@ export default function AddressList({ onEdit, user }: AddressListProps) {
     return (
       <div className="space-y-4 p-4">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="border border-gray-200 rounded-lg p-4 animate-pulse"
-          >
+          <div key={i} className="border border-gray-200 rounded-lg p-4 animate-pulse">
             <div className="h-4 bg-gray-200 rounded mb-2"></div>
             <div className="h-3 bg-gray-200 rounded w-3/4"></div>
           </div>
@@ -91,23 +75,13 @@ export default function AddressList({ onEdit, user }: AddressListProps) {
   }
 
   if (addresses.length === 0) {
-    return (
-      <div className="text-gray-500 text-center py-8">
-        No addresses available. Please add an address first.
-      </div>
-    );
+    return <div className="text-gray-500 text-center py-8">No addresses available. Please add an address first.</div>;
   }
 
   return (
     <div className="space-y-0">
       {addresses.map((address, index) => {
-        const addressText = [
-          address.street,
-          address.district?.name,
-          address.regency?.name,
-        ]
-          .filter(Boolean)
-          .join(", ");
+        const addressText = [address.street, address.district?.name, address.regency?.name].filter(Boolean).join(", ");
 
         const addressData: AddressData = {
           name: user?.name || "User",
@@ -117,15 +91,7 @@ export default function AddressList({ onEdit, user }: AddressListProps) {
 
         const isSelected = selectedAddress?.id === address.id;
 
-        return (
-          <Address
-            key={address.id || index}
-            address={addressData}
-            isSelected={isSelected}
-            onSelect={() => handleSelect(index, address)}
-            onEdit={() => handleEdit(addressData)}
-          />
-        );
+        return <Address key={address.id || index} address={addressData} isSelected={isSelected} onSelect={() => handleSelect(index, address)} onEdit={() => handleEdit(addressData)} />;
       })}
     </div>
   );
