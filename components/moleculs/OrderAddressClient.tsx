@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from "react";
 import { MdLocationOn } from "react-icons/md";
 import AddressModal from "../organisms/AddressModal";
-import { User } from "../../types/user";
-import { useAuth } from "@/app/context/AuthContext";
-import { Address } from "../../types/user";
+import { Address, User } from "../../types/user";
 
-export default function OrderAddressClient() {
-  const { user, addresses } = useAuth();
+interface OrderAddressClientProps {
+  addresses: Address[];
+  user: User | null; 
+}
+
+export default function OrderAddressClient({ addresses, user }: OrderAddressClientProps) {
   const [primaryAddress, setPrimaryAddress] = useState<Address | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
