@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { fetchAddresses } from "./fetchAddress";
-import { Address } from "../components/modals/AddressModal";
 import { useAuth } from "@/app/context/AuthContext";
+import { Address } from "../../fe-angkutin/types/user";
 
 // Global cache untuk address data (shared across components)
 const globalAddressCache = new Map<string, { data: Address[]; timestamp: number }>();
@@ -38,7 +38,6 @@ export const useAddressData = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAddressData = useCallback(async (forceRefresh = false) => {
-
     if (!token) {
       setError("No authentication token found");
       return;
